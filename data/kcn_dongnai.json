@@ -1,0 +1,248 @@
+{
+  "version": "2.5.0",
+  "lastUpdated": "2026-11-07",
+  "source": "Ban Quản lý các KCN Đồng Nai (DIZA) & Sở KH-ĐT thành phố Đồng Nai",
+  "industrialZones": [
+    {"id":"kcn-bh1","name":"KCN Biên Hòa 1","district":"Phường Biên Hòa (địa chỉ cũ: TP. Biên Hòa)","status":"Đang chuyển đổi công năng","enterprises":50},
+    {"id":"kcn-bh2","name":"KCN Biên Hòa 2","district":"Phường Biên Hòa (địa chỉ cũ: TP. Biên Hòa)","status":"Hoạt động","enterprises":125},
+    {"id":"kcn-amata","name":"KCN Amata","district":"Phường Biên Hòa (địa chỉ cũ: TP. Biên Hòa)","status":"Hoạt động","enterprises":168},
+    {"id":"kcn-lt","name":"KCN Long Thành","district":"Huyện Long Thành","status":"Hoạt động","enterprises":92},
+    {"id":"kcn-ld","name":"KCN Long Đức","district":"Huyện Long Thành","status":"Hoạt động","enterprises":48},
+    {"id":"kcn-nt1","name":"KCN Nhơn Trạch 1","district":"Huyện Nhơn Trạch","status":"Hoạt động","enterprises":85},
+    {"id":"kcn-nt2","name":"KCN Nhơn Trạch 2","district":"Huyện Nhơn Trạch","status":"Hoạt động","enterprises":72},
+    {"id":"kcn-nt3","name":"KCN Nhơn Trạch 3","district":"Huyện Nhơn Trạch","status":"Hoạt động","enterprises":110},
+    {"id":"kcn-nt5","name":"KCN Nhơn Trạch 5","district":"Huyện Nhơn Trạch","status":"Hoạt động","enterprises":95},
+    {"id":"kcn-bx","name":"KCN Bàu Xéo","district":"Huyện Trảng Bom","status":"Hoạt động","enterprises":82},
+    {"id":"kcn-gd","name":"KCN Giang Điền","district":"Huyện Trảng Bom","status":"Hoạt động","enterprises":63},
+    {"id":"kcn-sm","name":"KCN Sông Mây","district":"Huyện Trảng Bom","status":"Hoạt động","enterprises":58},
+    {"id":"kcn-tp","name":"KCN Thạnh Phú","district":"Huyện Vĩnh Cửu","status":"Hoạt động","enterprises":35},
+    {"id":"kcn-dg","name":"KCN Dầu Giây","district":"Huyện Thống Nhất","status":"Hoạt động","enterprises":42},
+    {"id":"kcn-online","name":"Làm việc tại nhà / Online","district":"Toàn quốc","status":"Khu vực nguy cơ cao","enterprises":0}
+  ],
+  "verifiedEnterprises": [
+    {
+      "id":"ent-01","name":"Công ty TNHH Changshin Việt Nam","shortName":"Changshin VN",
+      "kcn":"KCN Thạnh Phú","address":"Xã Thạnh Phú, Vĩnh Cửu, Đồng Nai",
+      "taxCode":"3600257321","industry":"Sản xuất giày thể thao (Nike)",
+      "workforce":38000,"hotline":"0251.3865201","email":"recruitment@changshin.vn",
+      "website":"changshin.vn","verified":true,
+      "note":"Tuyển trực tiếp tại cổng. KHÔNG thu bất kỳ chi phí nào.",
+      "keywords":["changshin","chang shin","giày nike","vĩnh cửu"]
+    },
+    {
+      "id":"ent-02","name":"Công ty CP Taekwang Vina Industrial","shortName":"Taekwang Vina",
+      "kcn":"KCN Biên Hòa 2","address":"Số 8, Đường 9A, KCN Biên Hòa 2, Biên Hòa",
+      "taxCode":"3600256127","industry":"Sản xuất giày thể thao (Nike)",
+      "workforce":35000,"hotline":"0251.3836431","email":"hr@tkvina.com",
+      "website":"taekwangvina.com","verified":true,
+      "note":"Nộp hồ sơ tại Cổng số 1. Không ủy quyền cá nhân qua Zalo.",
+      "keywords":["taekwang","tae kwang","tk vina","biên hòa 2"]
+    },
+    {
+      "id":"ent-03","name":"Công ty TNHH Nestlé Việt Nam","shortName":"Nestlé VN",
+      "kcn":"KCN Amata","address":"KCN Amata, P. Long Bình, Biên Hòa",
+      "taxCode":"3600235305","industry":"Thực phẩm & Đồ uống (Milo, Nescafé)",
+      "workforce":2500,"hotline":"0251.3836699","email":"tuyendung@nestle.com.vn",
+      "website":"nestle.com.vn","verified":true,
+      "note":"Thường bị mạo danh tuyển CTV chốt đơn Milo online. Chỉ tuyển qua kênh chính thức.",
+      "keywords":["nestle","milo","nescafe","amata"]
+    },
+    {
+      "id":"ent-04","name":"Công ty TNHH Robert Bosch Việt Nam","shortName":"Bosch VN",
+      "kcn":"KCN Long Thành","address":"Đường số 1, KCN Long Thành, Tam An, Long Thành",
+      "taxCode":"3600898522","industry":"Linh kiện công nghệ ô tô",
+      "workforce":4000,"hotline":"0251.6258000","email":"careers.rbvh@vn.bosch.com",
+      "website":"bosch.com.vn","verified":true,
+      "note":"Ứng tuyển qua website Bosch Careers chính hãng.",
+      "keywords":["bosch","long thành","tam an"]
+    },
+    {
+      "id":"ent-05","name":"Công ty CP Chăn nuôi C.P. Việt Nam","shortName":"C.P. VN",
+      "kcn":"KCN Biên Hòa 2","address":"Số 2, Đường 2A, KCN Biên Hòa 2, Biên Hòa",
+      "taxCode":"3600224423","industry":"Chế biến thực phẩm & Chăn nuôi",
+      "workforce":20000,"hotline":"0251.3836251","email":"tuyendung@cp.com.vn",
+      "website":"cp.com.vn","verified":true,
+      "note":"Không bao giờ yêu cầu nộp lệ phí hay tiền đồng phục trước.",
+      "keywords":["cp vietnam","c.p","chăn nuôi","biên hòa 2"]
+    },
+    {
+      "id":"ent-06","name":"Công ty TNHH Brother Machinery Vietnam","shortName":"Brother Machinery",
+      "kcn":"KCN Amata","address":"Lô 112/1, KCN Amata, P. Long Bình, Biên Hòa",
+      "taxCode":"3600845612","industry":"Máy may công nghiệp & Cơ khí",
+      "workforce":1800,"hotline":"0251.3936888","email":"recruitment@brother.vn",
+      "website":"brother.com.vn","verified":true,
+      "note":"Nộp hồ sơ tại cổng KCN Amata hoặc gửi CV qua email @brother.vn.",
+      "keywords":["brother","brother machinery","amata","máy may"]
+    },
+    {
+      "id":"ent-07","name":"Công ty TNHH Ajinomoto Việt Nam","shortName":"Ajinomoto VN",
+      "kcn":"KCN Biên Hòa 1","address":"Đường số 9, KCN Biên Hòa 1, P. An Bình, Biên Hòa",
+      "taxCode":"3600235383","industry":"Gia vị thực phẩm (Aji-ngon, Bột ngọt)",
+      "workforce":2000,"hotline":"0251.3836101","email":"hr@ajinomoto.com.vn",
+      "website":"ajinomoto.com.vn","verified":true,
+      "note":"Tuyển dụng qua Fanpage tích xanh 'Ajinomoto VN Tuyển dụng'.",
+      "keywords":["ajinomoto","bột ngọt","biên hòa 1"]
+    },
+    {
+      "id":"ent-08","name":"Công ty TNHH Hyosung Đồng Nai","shortName":"Hyosung VN",
+      "kcn":"KCN Nhơn Trạch 5","address":"Đường số 1, KCN Nhơn Trạch 5, Phước Thiền",
+      "taxCode":"3603278912","industry":"Sợi lốp xe, Spandex, Vải sợi hóa học",
+      "workforce":7500,"hotline":"0251.3569100","email":"recruiting@hyosung.com",
+      "website":"hyosungvietnam.com","verified":true,
+      "note":"Phỏng vấn trực tiếp tại tòa nhà văn phòng Hyosung.",
+      "keywords":["hyosung","nhơn trạch 5","spandex","sợi"]
+    },
+    {
+      "id":"ent-09","name":"Công ty TNHH Formosa Taffeta Đồng Nai","shortName":"Formosa Taffeta",
+      "kcn":"KCN Nhơn Trạch 3","address":"KCN Nhơn Trạch 3, Huyện Nhơn Trạch",
+      "taxCode":"3600465219","industry":"Dệt nhuộm & Sợi tổng hợp kỹ thuật cao",
+      "workforce":5000,"hotline":"0251.3560300","email":"hr@ftdn.com.vn",
+      "website":"ftc.com.tw","verified":true,
+      "note":"Không giữ giấy tờ tùy thân gốc của người lao động.",
+      "keywords":["formosa","nhơn trạch 3","dệt nhuộm"]
+    },
+    {
+      "id":"ent-10","name":"Công ty TNHH SMC Manufacturing Việt Nam","shortName":"SMC VN",
+      "kcn":"KCN Long Đức","address":"Lô C2, KCN Long Đức, Xã Long Đức, Long Thành",
+      "taxCode":"3603348123","industry":"Thiết bị khí nén tự động hóa (Nhật Bản)",
+      "workforce":3000,"hotline":"0251.3681100","email":"smc-hr@smcvn.com.vn",
+      "website":"smcvn.com.vn","verified":true,
+      "note":"Tuyển dụng chính thống qua website và cổng nhà máy.",
+      "keywords":["smc","long đức","khí nén","long thành"]
+    },
+    {
+      "id":"ent-11","name":"Công ty TNHH Pouchen Việt Nam","shortName":"Pouchen ĐN",
+      "kcn":"P. Hóa An, Phường Biên Hòa (địa chỉ cũ: TP. Biên Hòa)","address":"Nguyễn Ái Quốc, P. Hóa An, Biên Hòa",
+      "taxCode":"3600257120","industry":"Giày thể thao xuất khẩu",
+      "workforce":15000,"hotline":"0251.3951234","email":"pouchen.hr@pouchen.vn",
+      "website":"pouchen.com","verified":true,
+      "note":"Nhận hồ sơ tại bàn bảo vệ cổng 1.",
+      "keywords":["pouchen","pou chen","hóa an","giày dép"]
+    },
+    {
+      "id":"ent-12","name":"Công ty CP TKG Taekwang (CN Giang Điền)","shortName":"Taekwang GĐ",
+      "kcn":"KCN Giang Điền","address":"Đường số 3, KCN Giang Điền, Trảng Bom",
+      "taxCode":"3900451299-002","industry":"Kho bãi Logistics & Phụ trợ giày da",
+      "workforce":2200,"hotline":"0251.3678999","email":"tuyendung.gd@tkvina.com",
+      "website":"taekwangvina.com","verified":true,
+      "note":"Miễn phí 100% chi phí tuyển dụng.",
+      "keywords":["giang điền","trảng bom","taekwang giang điền"]
+    },
+    {
+      "id":"ent-13","name":"Công ty TNHH Kenda Rubber Việt Nam","shortName":"Kenda VN",
+      "kcn":"KCN Giang Điền","address":"Lô F1, KCN Giang Điền, Trảng Bom",
+      "taxCode":"3601352847","industry":"Sản xuất lốp xe cao su",
+      "workforce":2800,"hotline":"0251.3678012","email":"hr@kendavn.com",
+      "website":"kendatire.com","verified":true,
+      "note":"Tuyển công nhân qua Trung tâm DVVL Đồng Nai.",
+      "keywords":["kenda","lốp xe","giang điền"]
+    },
+    {
+      "id":"ent-14","name":"Công ty TNHH Fujitsu Việt Nam","shortName":"Fujitsu VN",
+      "kcn":"KCN Biên Hòa 2","address":"Lô 44, Đường 3A, KCN Biên Hòa 2",
+      "taxCode":"3600612093","industry":"Thiết bị điện tử & Bán dẫn (Nhật Bản)",
+      "workforce":3200,"hotline":"0251.3836789","email":"recruit@fujitsu.com.vn",
+      "website":"fujitsu.com/vn","verified":true,
+      "note":"Ưu tiên ứng viên qua website tuyển dụng Fujitsu.",
+      "keywords":["fujitsu","điện tử","biên hòa 2"]
+    },
+    {
+      "id":"ent-15","name":"Công ty TNHH Schaeffler Việt Nam","shortName":"Schaeffler VN",
+      "kcn":"KCN Amata","address":"Lô 22, KCN Amata, P. Long Bình, Biên Hòa",
+      "taxCode":"3601789234","industry":"Vòng bi công nghiệp & Linh kiện ô tô (Đức)",
+      "workforce":1500,"hotline":"0251.3936456","email":"careers.vn@schaeffler.com",
+      "website":"schaeffler.com","verified":true,
+      "note":"Tuyển kỹ sư cơ khí và kỹ thuật viên chất lượng.",
+      "keywords":["schaeffler","vòng bi","amata","đức"]
+    },
+    {
+      "id":"ent-16","name":"Công ty TNHH Muto Việt Nam","shortName":"Muto VN",
+      "kcn":"KCN Nhơn Trạch 1","address":"Đường N2, KCN Nhơn Trạch 1",
+      "taxCode":"3600987612","industry":"Sản xuất linh kiện nhựa kỹ thuật (Nhật Bản)",
+      "workforce":1200,"hotline":"0251.3560456","email":"hr@mutovn.com",
+      "website":"muto.co.jp","verified":true,
+      "note":"Chỉ nhận hồ sơ trực tiếp tại bảo vệ nhà máy.",
+      "keywords":["muto","nhựa","nhơn trạch 1"]
+    },
+    {
+      "id":"ent-17","name":"Công ty TNHH Lixil Việt Nam","shortName":"Lixil VN",
+      "kcn":"KCN Sông Mây","address":"Lô B3, KCN Sông Mây, Trảng Bom",
+      "taxCode":"3601456789","industry":"Thiết bị vệ sinh & Vật liệu xây dựng (Nhật Bản)",
+      "workforce":2600,"hotline":"0251.3675890","email":"tuyendung@lixil.com.vn",
+      "website":"lixil.com","verified":true,
+      "note":"Có xe đưa đón công nhân từ Biên Hòa.",
+      "keywords":["lixil","sông mây","vật liệu","trảng bom"]
+    },
+    {
+      "id":"ent-18","name":"Công ty TNHH Bayer Việt Nam","shortName":"Bayer VN",
+      "kcn":"KCN Dầu Giây","address":"Lô A1, KCN Dầu Giây, Thống Nhất",
+      "taxCode":"3602345678","industry":"Dược phẩm & Hóa chất nông nghiệp (Đức)",
+      "workforce":1100,"hotline":"0251.3612345","email":"careers@bayer.vn",
+      "website":"bayer.com.vn","verified":true,
+      "note":"Yêu cầu bằng Cao đẳng trở lên cho vị trí kỹ thuật.",
+      "keywords":["bayer","dầu giây","dược phẩm","thống nhất"]
+    }
+  ],
+  "blacklist": [
+    {
+      "id":"bl-01","target":"Tập đoàn Nestlé Tuyển CTV Đóng Gói Milo Online","type":"Mạo danh thương hiệu",
+      "phones":["0349.882.194","0912.774.881"],"telegram":"@tuyendung_nestle_vn_milo",
+      "kcnFake":"KCN Amata","method":"Mạo danh Nestlé tuyển CTV đóng gói tại nhà, yêu cầu nạp tiền cọc 250k.",
+      "level":"CỰC KỲ NGUY HIỂM","reports":47,"date":"2024-10-15"
+    },
+    {
+      "id":"bl-02","target":"Cung Ứng Nhân Lực Đồng Nai 247 (Giả mạo)","type":"Thu phí tuyển dụng trái phép",
+      "phones":["0877.441.902","0793.118.445"],"telegram":"@nhanlucdongnai_vip",
+      "kcnFake":"KCN Biên Hòa 2","method":"Hẹn quán nước gần cổng KCN, thu 350k thẻ từ + 200k đồng phục rồi biến mất.",
+      "level":"NGUY HIỂM CAO","reports":62,"date":"2024-09-28"
+    },
+    {
+      "id":"bl-03","target":"CTV Chốt Đơn Shopee Logistics Long Thành","type":"Lừa đảo tài chính nhiệm vụ",
+      "phones":["0582.993.114"],"telegram":"@shopee_kol_dongnai",
+      "kcnFake":"KCN Long Thành","method":"Nạp tiền chốt đơn, ban đầu cho rút vài chục nghìn rồi chiếm đoạt hàng chục triệu.",
+      "level":"CỰC KỲ NGUY HIỂM","reports":89,"date":"2024-11-02"
+    },
+    {
+      "id":"bl-04","target":"Xưởng Dán Tem Mỹ Phẩm Bình Đa","type":"Lừa cọc gia công tại nhà",
+      "phones":["0908.431.290","0368.125.779"],"telegram":"",
+      "kcnFake":"P. Bình Đa, Biên Hòa","method":"Tuyển dán tem son/xâu hạt, thu cọc 400-800k tiền hàng rồi chặn số.",
+      "level":"NGUY HIỂM CAO","reports":38,"date":"2024-08-19"
+    },
+    {
+      "id":"bl-05","target":"Tuyển Tài Xế KCN Nhơn Trạch Lương 18 Triệu","type":"Thu phí cọc & giữ giấy tờ gốc",
+      "phones":["0766.529.110","0899.231.543"],"telegram":"@vantainhontrach_hr",
+      "kcnFake":"KCN Nhơn Trạch 1-2","method":"Lương trên trời, bắt nộp CCCD gốc và 500k 'giữ chỗ lái xe'.",
+      "level":"NGUY HIỂM CAO","reports":29,"date":"2024-10-05"
+    },
+    {
+      "id":"bl-06","target":"Việc Làm Taekwang Vina - Thời Vụ (Mạo danh)","type":"Mạo danh Taekwang Vina",
+      "phones":["0335.719.824"],"telegram":"@taekwang_recruitment_vn",
+      "kcnFake":"KCN Biên Hòa 2","method":"Dùng logo Taekwang, yêu cầu nộp 200k phí khám sức khỏe qua MoMo.",
+      "level":"RẤT NGUY HIỂM","reports":51,"date":"2024-10-22"
+    },
+    {
+      "id":"bl-07","target":"Hyosung Tuyển KTV Online 800k/ngày (Mạo danh)","type":"Cài mã độc APK",
+      "phones":["0819.345.112"],"telegram":"@hyosung_careers_dongnai",
+      "kcnFake":"KCN Nhơn Trạch 5","method":"Yêu cầu cài file APK lạ để đánh cắp mã OTP ngân hàng.",
+      "level":"CỰC KỲ NGUY HIỂM","reports":34,"date":"2024-10-30"
+    },
+    {
+      "id":"bl-08","target":"Hội Tuyển Dụng CN KCN Giang Điền","type":"Cò mồi môi giới",
+      "phones":["0938.112.784"],"telegram":"",
+      "kcnFake":"KCN Giang Điền","method":"Thu 300k phí giới thiệu, chở người đến cty rồi bỏ trốn.",
+      "level":"NGUY HIỂM","reports":22,"date":"2024-09-11"
+    },
+    {
+      "id":"bl-09","target":"C.P VN Tuyển NV Kho Lạnh (Mạo danh)","type":"Mạo danh C.P. Vietnam",
+      "phones":["0379.221.849"],"telegram":"@cp_meat_dongnai",
+      "kcnFake":"KCN Biên Hòa 2","method":"Lừa mua bộ đồ bảo hộ kho lạnh 650k trước khi nhận việc.",
+      "level":"NGUY HIỂM CAO","reports":19,"date":"2024-11-04"
+    },
+    {
+      "id":"bl-10","target":"Nữ Dán Tem Trà Xanh C2 KCN Amata","type":"Việc nhẹ lương cao giả mạo",
+      "phones":["0788.192.338"],"telegram":"",
+      "kcnFake":"KCN Amata","method":"Tuyển dán tem 400k/ngày, bị ép ký giấy nợ đào tạo + phí đồng phục.",
+      "level":"NGUY HIỂM CAO","reports":27,"date":"2024-10-18"
+    }
+  ]
+}

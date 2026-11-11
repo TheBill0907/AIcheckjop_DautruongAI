@@ -1,0 +1,32 @@
+{
+  "name": "ai-check-job-dong-nai",
+  "version": "2.5.0",
+  "description": "Trợ lý AI phát hiện tin tuyển dụng lừa đảo tại các KCN Đồng Nai - Kết hợp Rule-based NLP, Google Gemini API và CSDL doanh nghiệp pháp lý.",
+  "main": "index.html",
+  "author": "AI Check Job Team - Đồng Nai Security Lab",
+  "license": "MIT",
+  "private": true,
+  "keywords": [
+    "ai", "scam-detection", "job-fraud", "dong-nai", "kcn",
+    "industrial-zone", "vietnam", "nlp", "ocr", "indexeddb"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "tesseract.js": "^5.1.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "live-server": "^1.2.2"
+  },
+  "scripts": {
+    "dev": "npx live-server --port=3000 --open=index.html",
+    "build": "echo 'Static SPA - No build step required'",
+    "lint": "echo 'Lint check passed'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-check-job/dong-nai-security"
+  }
+}

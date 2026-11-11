@@ -1,0 +1,40 @@
+{
+  "version": "2.5.0",
+  "description": "Từ điển nhận diện lừa đảo lao động tiếng Việt - AI Check Job Đồng Nai",
+  "criticalFinancial": [
+    "đóng phí","nộp phí","phí đồng phục","phí thẻ từ","phí làm thẻ","lệ phí hồ sơ",
+    "tiền cọc","đặt cọc","thế chân","tạm ứng tiền","phí khám sức khỏe",
+    "nạp tiền cọc","chuyển khoản trước","nộp trước","chuyển tiền trước"
+  ],
+  "taskScam": [
+    "hoàn vốn 100%","hoa hồng","chốt đơn","nhận tiền ngay sau","nạp tiền làm nhiệm vụ",
+    "kích hoạt tài khoản hệ thống","làm nhiệm vụ","mã nhiệm vụ","combo đơn",
+    "hoàn tiền gốc","đơn hệ thống","gói nhiệm vụ"
+  ],
+  "identityTheft": [
+    "giữ cccd","giữ cmnd","bản gốc cccd","nộp cccd gốc","giữ bằng gốc",
+    "giữ bằng lái xe","giấy tờ gốc","nộp hộ chiếu gốc"
+  ],
+  "unrealisticPay": [
+    "việc nhẹ lương cao","500k/ngày","1tr/ngày","1tr2/ngày","thu nhập theo ngày",
+    "chỉ cần điện thoại","lương 15 triệu không cần kinh nghiệm",
+    "lương 18 triệu","lương 20 triệu không bằng cấp"
+  ],
+  "suspiciousChannel": [
+    "telegram","t.me","zalo cá nhân","quán nước","quán cà phê",
+    "quán trà đá","đối diện cổng","vỉa hè cổng","phòng trọ"
+  ],
+  "homeScam": [
+    "xâu chuỗi","xâu hạt","dán tem","dán nhãn son","gấp phong bì",
+    "đóng tăm bông","gia công tại nhà","gói kẹo tại nhà"
+  ],
+  "noProcess": [
+    "không cần phỏng vấn","nhận việc ngay trong ngày","nhận việc ngay lập tức",
+    "đi làm liền","không cần bằng cấp không cần kinh nghiệm"
+  ],
+  "safeIndicators": [
+    "tuyệt đối không thu bất kỳ chi phí","không thu phí","miễn phí 100%",
+    "không giữ bản gốc","phòng bảo vệ cổng","nộp hồ sơ trực tiếp tại cổng",
+    "tham gia đầy đủ bhxh","hợp đồng lao động","khám sức khỏe định kỳ"
+  ]
+}
