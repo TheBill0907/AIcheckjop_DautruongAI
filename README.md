@@ -105,8 +105,8 @@ Dự án áp dụng mô hình lưu trữ cục bộ bảo mật cao (Client-Side
 
 ## 📞 THÔNG TIN ĐƯỜNG DÂY NÓNG CƠ QUAN CHỨC NĂNG
 
-- **Phòng An ninh mạng & PCTP Công nghệ cao (PA05) - Công an tỉnh Đồng Nai**:
-  - Hotline: `0251.3820106` / `069.3480100`
+- **Công an Thành phố Đồng Nai**:
+  - Hotline: `0251.3685134`
 - **Ban Quản lý các KCN Đồng Nai (DIZA)**:
   - Hotline: `0251.3892378`
 - **Trung tâm Dịch vụ Việc làm Đồng Nai**:

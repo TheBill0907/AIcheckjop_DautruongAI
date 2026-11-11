@@ -11,7 +11,7 @@ const DEFAULT_KCN_ENTERPRISES = [
   {
     id: 'ent-01',
     name: 'Công ty TNHH Pouchen Việt Nam',
-    kcn: 'KCN Hóa An / Biên Hòa',
+    kcn: 'Phường Hóa An, Thành phố Đồng Nai',
     industry: 'Sản xuất giày da xuất khẩu',
     taxCode: '3600257321',
     hotline: '0251.3955666',
@@ -261,7 +261,7 @@ function resetChatBox() {
         </div>
         <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 text-slate-200 shadow-sm max-w-[88%] space-y-1.5 text-xs leading-relaxed">
           <p>👋 Chào bạn! Mình là <strong>Jobi</strong> - Trợ lý AI Hỗ trợ Khẩn cấp.</p>
-          <p>Bạn đang gặp rắc rối với tin tuyển dụng, hay lỡ làm theo yêu cầu của kẻ gian? Hãy gõ tình trạng của bạn vào đây nhé!</p>
+          <p>Bạn đang gặp rắc rối với tin tuyển dụng, hay lỡ làm theo yêu cầu của kẻ gian? Hãy gõ tình trạng của bạn vào đây hoặc gọi ngay Hotline Công an TP. Đồng Nai: <strong>0251.3685134</strong> để được hướng dẫn!</p>
         </div>
       </div>
     `;
@@ -281,7 +281,18 @@ const App = {
   enterpriseFilter: 'all',
   enterpriseSearchQuery: '',
   wizardDraft: {
-    step1: { companyName: '', kcn: 'KCN Biên Hòa 2', position: '', salary: '', contact: '', applicationMethod: 'Trực tiếp tại cổng KCN' },
+    step1: {
+      companyName: '',
+      kcn: 'KCN Biên Hòa 2',
+      kcnSelectValue: 'KCN Biên Hòa 2',
+      kcnKhac: '',
+      position: '',
+      salary: '',
+      contact: '',
+      applicationMethod: 'Trực tiếp tại cổng KCN',
+      applicationMethodSelectValue: 'Trực tiếp tại cổng KCN',
+      applicationMethodKhac: ''
+    },
     step2: { content: '', quickFlags: { feeRequired: false, noInterview: false, privateChat: false, keepIdDoc: false, unrealisticPay: false, taskDeposit: false } },
     step3: { analysisResult: null },
     step4: { checklist: { noDepositPaid: false, noOriginalIdGiven: false, verifiedAtGate: false, verifiedViaHotline: false, clearLaborContract: false } }
@@ -538,13 +549,27 @@ const App = {
 
     // Đồng bộ vào wizardDraft.step1
     if (compInput || posInput) {
+      const kcnSelect = document.getElementById('w-kcn');
+      const kcnKhacInput = document.getElementById('input-kcn-khac');
+      const kcnVal = kcnSelect?.value || this.wizardDraft?.step1?.kcnSelectValue || this.wizardDraft?.step1?.kcn || 'KCN Biên Hòa 2';
+      const kcnKhac = kcnKhacInput ? kcnKhacInput.value.trim() : (this.wizardDraft?.step1?.kcnKhac || '');
+
+      const methodSelect = document.getElementById('w-app-method');
+      const methodKhacInput = document.getElementById('input-phongvan-khac');
+      const methodVal = methodSelect?.value || this.wizardDraft?.step1?.applicationMethodSelectValue || this.wizardDraft?.step1?.applicationMethod || 'Trực tiếp tại cổng KCN';
+      const methodKhac = methodKhacInput ? methodKhacInput.value.trim() : (this.wizardDraft?.step1?.applicationMethodKhac || '');
+
       this.wizardDraft.step1 = {
         companyName: compName,
-        kcn: kcnInput?.value || this.wizardDraft?.step1?.kcn || 'KCN Biên Hòa 2',
         position: position,
+        kcnSelectValue: kcnVal,
+        kcnKhac: kcnKhac,
+        kcn: (kcnVal === 'khac' && kcnKhac) ? kcnKhac : (kcnVal === 'khac' ? 'Địa bàn khác' : kcnVal),
         salary: document.getElementById('w-salary')?.value?.trim() || this.wizardDraft?.step1?.salary || '',
         contact: document.getElementById('w-contact')?.value?.trim() || this.wizardDraft?.step1?.contact || '',
-        applicationMethod: document.getElementById('w-app-method')?.value || this.wizardDraft?.step1?.applicationMethod || 'Trực tiếp tại cổng KCN'
+        applicationMethodSelectValue: methodVal,
+        applicationMethodKhac: methodKhac,
+        applicationMethod: (methodVal === 'khac' && methodKhac) ? methodKhac : (methodVal === 'khac' ? 'Hình thức khác' : methodVal)
       };
     }
     return true;
@@ -562,12 +587,31 @@ const App = {
       const pos = document.getElementById('w-position')?.value?.trim();
       if (comp) this.wizardDraft.step1.companyName = comp;
       if (pos) this.wizardDraft.step1.position = pos;
-      const kcn = document.getElementById('w-kcn')?.value;
-      if (kcn) this.wizardDraft.step1.kcn = kcn;
+
+      const kcnSelect = document.getElementById('w-kcn');
+      const kcnKhacInput = document.getElementById('input-kcn-khac');
+      if (kcnSelect) {
+        const kcnVal = kcnSelect.value;
+        const kcnKhac = kcnKhacInput ? kcnKhacInput.value.trim() : (this.wizardDraft.step1.kcnKhac || '');
+        this.wizardDraft.step1.kcnSelectValue = kcnVal;
+        this.wizardDraft.step1.kcnKhac = kcnKhac;
+        this.wizardDraft.step1.kcn = (kcnVal === 'khac' && kcnKhac) ? kcnKhac : (kcnVal === 'khac' ? 'Địa bàn khác' : kcnVal);
+      }
+
       const salary = document.getElementById('w-salary')?.value?.trim();
       if (salary) this.wizardDraft.step1.salary = salary;
       const contact = document.getElementById('w-contact')?.value?.trim();
       if (contact) this.wizardDraft.step1.contact = contact;
+
+      const methodSelect = document.getElementById('w-app-method');
+      const methodKhacInput = document.getElementById('input-phongvan-khac');
+      if (methodSelect) {
+        const methodVal = methodSelect.value;
+        const methodKhac = methodKhacInput ? methodKhacInput.value.trim() : (this.wizardDraft.step1.applicationMethodKhac || '');
+        this.wizardDraft.step1.applicationMethodSelectValue = methodVal;
+        this.wizardDraft.step1.applicationMethodKhac = methodKhac;
+        this.wizardDraft.step1.applicationMethod = (methodVal === 'khac' && methodKhac) ? methodKhac : (methodVal === 'khac' ? 'Hình thức khác' : methodVal);
+      }
     } else if (this.currentStep === 2) {
       const content = document.getElementById('w-content')?.value?.trim();
       if (content !== undefined && content.length > 0) {
@@ -778,17 +822,20 @@ const App = {
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
               Khu Công Nghiệp / Địa Bàn <span class="text-red-400">*</span>
             </label>
-            <select id="w-kcn" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium">
-              <option value="KCN Amata" ${s1.kcn === 'KCN Amata' ? 'selected' : ''}>KCN Amata (Phường Biên Hòa - địa chỉ cũ: TP. Biên Hòa)</option>
-              <option value="KCN Biên Hòa 2" ${s1.kcn === 'KCN Biên Hòa 2' ? 'selected' : ''}>KCN Biên Hòa 2 (Phường Biên Hòa - địa chỉ cũ: TP. Biên Hòa)</option>
-              <option value="KCN Long Thành" ${s1.kcn === 'KCN Long Thành' ? 'selected' : ''}>KCN Long Thành / Long Đức</option>
-              <option value="KCN Nhơn Trạch" ${s1.kcn === 'KCN Nhơn Trạch' ? 'selected' : ''}>KCN Nhơn Trạch (1, 2, 3, 5)</option>
-              <option value="KCN Giang Điền" ${s1.kcn === 'KCN Giang Điền' ? 'selected' : ''}>KCN Giang Điền - Trảng Bom</option>
-              <option value="KCN Bàu Xéo" ${s1.kcn === 'KCN Bàu Xéo' ? 'selected' : ''}>KCN Bàu Xéo - Trảng Bom</option>
-              <option value="KCN Hóa An" ${s1.kcn === 'KCN Hóa An' ? 'selected' : ''}>KCN Hóa An - Biên Hòa</option>
-              <option value="KCN Thạnh Phú" ${s1.kcn === 'KCN Thạnh Phú' ? 'selected' : ''}>KCN Thạnh Phú (Vĩnh Cửu)</option>
-              <option value="Online / Tại nhà" ${s1.kcn === 'Online / Tại nhà' ? 'selected' : ''}>Làm việc tại nhà / Online</option>
+            <select id="w-kcn" onchange="App.handleKcnSelectChange(this.value)" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium">
+              <option value="KCN Amata" ${(s1.kcnSelectValue === 'KCN Amata' || s1.kcn === 'KCN Amata') ? 'selected' : ''}>KCN Amata (Phường Long Bình, Thành phố Đồng Nai)</option>
+              <option value="KCN Biên Hòa 2" ${(s1.kcnSelectValue === 'KCN Biên Hòa 2' || s1.kcn === 'KCN Biên Hòa 2') ? 'selected' : ''}>KCN Biên Hòa 2 (Phường Long Hưng, Thành phố Đồng Nai)</option>
+              <option value="KCN Long Thành" ${(s1.kcnSelectValue === 'KCN Long Thành' || s1.kcn === 'KCN Long Thành') ? 'selected' : ''}>KCN Long Thành / Long Đức</option>
+              <option value="KCN Nhơn Trạch" ${(s1.kcnSelectValue === 'KCN Nhơn Trạch' || s1.kcn === 'KCN Nhơn Trạch') ? 'selected' : ''}>KCN Nhơn Trạch (1, 2, 3, 5)</option>
+              <option value="KCN Giang Điền" ${(s1.kcnSelectValue === 'KCN Giang Điền' || s1.kcn === 'KCN Giang Điền') ? 'selected' : ''}>KCN Giang Điền - Trảng Bom</option>
+              <option value="KCN Bàu Xéo" ${(s1.kcnSelectValue === 'KCN Bàu Xéo' || s1.kcn === 'KCN Bàu Xéo') ? 'selected' : ''}>KCN Bàu Xéo - Trảng Bom</option>
+              <option value="KCN Thạnh Phú" ${(s1.kcnSelectValue === 'KCN Thạnh Phú' || s1.kcn === 'KCN Thạnh Phú') ? 'selected' : ''}>KCN Thạnh Phú (Vĩnh Cửu)</option>
+              <option value="Online / Tại nhà" ${(s1.kcnSelectValue === 'Online / Tại nhà' || s1.kcn === 'Online / Tại nhà') ? 'selected' : ''}>Làm việc tại nhà / Online</option>
+              <option value="khac" ${(s1.kcnSelectValue === 'khac' || s1.kcn === 'khac' || s1.kcnKhac) ? 'selected' : ''}>Khác (Vui lòng nhập bên dưới)</option>
             </select>
+            <input type="text" id="input-kcn-khac" value="${s1.kcnKhac || ''}"
+              placeholder="Nhập tên KCN hoặc địa chỉ khác..."
+              class="${(s1.kcnSelectValue === 'khac' || s1.kcn === 'khac' || s1.kcnKhac) ? '' : 'hidden'} mt-2.5 w-full px-4 py-3 bg-slate-900/90 border border-cyan-500/50 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium transition-all">
           </div>
 
           <!-- Vị Trí Tuyển Dụng -->
@@ -826,12 +873,16 @@ const App = {
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
               Hình Thức Phỏng Vấn / Nộp Hồ Sơ
             </label>
-            <select id="w-app-method" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium">
-              <option value="Trực tiếp tại cổng KCN">Nộp trực tiếp tại Cổng Bảo vệ / Phòng Nhân sự KCN (An toàn)</option>
-              <option value="Hẹn tại quán nước gần cổng">Hẹn gặp tại quán cà phê / quán nước ngoài cổng KCN (Nghi vấn)</option>
-              <option value="Qua Telegram / Zalo cá nhân">Qua Telegram / Zalo cá nhân / Nhóm kín (Dấu hiệu lừa đảo)</option>
-              <option value="Gửi qua email công ty">Gửi qua email doanh nghiệp chính thức (@domain.vn)</option>
+            <select id="w-app-method" onchange="App.handleMethodSelectChange(this.value)" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium">
+              <option value="Trực tiếp tại cổng KCN" ${(s1.applicationMethodSelectValue === 'Trực tiếp tại cổng KCN' || s1.applicationMethod === 'Trực tiếp tại cổng KCN') ? 'selected' : ''}>Nộp trực tiếp tại Cổng Bảo vệ / Phòng Nhân sự KCN (An toàn)</option>
+              <option value="Hẹn tại quán nước gần cổng" ${(s1.applicationMethodSelectValue === 'Hẹn tại quán nước gần cổng' || s1.applicationMethod === 'Hẹn tại quán nước gần cổng') ? 'selected' : ''}>Hẹn gặp tại quán cà phê / quán nước ngoài cổng KCN (Nghi vấn)</option>
+              <option value="Qua Telegram / Zalo cá nhân" ${(s1.applicationMethodSelectValue === 'Qua Telegram / Zalo cá nhân' || s1.applicationMethod === 'Qua Telegram / Zalo cá nhân') ? 'selected' : ''}>Qua Telegram / Zalo cá nhân / Nhóm kín (Dấu hiệu lừa đảo)</option>
+              <option value="Gửi qua email công ty" ${(s1.applicationMethodSelectValue === 'Gửi qua email công ty' || s1.applicationMethod === 'Gửi qua email công ty') ? 'selected' : ''}>Gửi qua email doanh nghiệp chính thức (@domain.vn)</option>
+              <option value="khac" ${(s1.applicationMethodSelectValue === 'khac' || s1.applicationMethod === 'khac' || s1.applicationMethodKhac) ? 'selected' : ''}>Khác (Vui lòng nhập bên dưới)</option>
             </select>
+            <input type="text" id="input-phongvan-khac" value="${s1.applicationMethodKhac || ''}"
+              placeholder="Nhập hình thức phỏng vấn khác..."
+              class="${(s1.applicationMethodSelectValue === 'khac' || s1.applicationMethod === 'khac' || s1.applicationMethodKhac) ? '' : 'hidden'} mt-2.5 w-full px-4 py-3 bg-slate-900/90 border border-cyan-500/50 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 font-medium transition-all">
           </div>
 
           <!-- Bottom Action: Button type=button với Custom Validation -->
@@ -848,6 +899,42 @@ const App = {
 
   bindStep1Events() {
     this.renderCompanyDropdownItems(this.cachedEnterprises);
+
+    const kcnSelect = document.getElementById('w-kcn');
+    if (kcnSelect) {
+      kcnSelect.addEventListener('change', (e) => {
+        this.handleKcnSelectChange(e.target.value);
+      });
+    }
+
+    const methodSelect = document.getElementById('w-app-method');
+    if (methodSelect) {
+      methodSelect.addEventListener('change', (e) => {
+        this.handleMethodSelectChange(e.target.value);
+      });
+    }
+  },
+
+  handleKcnSelectChange(val) {
+    const customInput = document.getElementById('input-kcn-khac');
+    if (!customInput) return;
+    if (val === 'khac') {
+      customInput.classList.remove('hidden');
+      customInput.focus();
+    } else {
+      customInput.classList.add('hidden');
+    }
+  },
+
+  handleMethodSelectChange(val) {
+    const customInput = document.getElementById('input-phongvan-khac');
+    if (!customInput) return;
+    if (val === 'khac') {
+      customInput.classList.remove('hidden');
+      customInput.focus();
+    } else {
+      customInput.classList.add('hidden');
+    }
   },
 
   showCompanyDropdown() {
@@ -916,13 +1003,21 @@ const App = {
       inputName.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
     }
     if (selectKcn && kcn) {
-      // Tìm option phù hợp
+      // Tìm option phù hợp trong danh sách có sẵn
+      let matched = false;
       for (let i = 0; i < selectKcn.options.length; i++) {
-        if (selectKcn.options[i].value.toLowerCase().includes(kcn.toLowerCase())) {
+        if (selectKcn.options[i].value !== 'khac' && selectKcn.options[i].value.toLowerCase().includes(kcn.toLowerCase())) {
           selectKcn.selectedIndex = i;
+          matched = true;
           break;
         }
       }
+      if (!matched) {
+        selectKcn.value = 'khac';
+        const customInput = document.getElementById('input-kcn-khac');
+        if (customInput) customInput.value = kcn;
+      }
+      this.handleKcnSelectChange(selectKcn.value);
     }
     if (inputContact && hotline) {
       inputContact.value = hotline;
@@ -1694,7 +1789,7 @@ const App = {
                 Quy tắc <strong>"3 KHÔNG"</strong>: Không chuyển tiền cọc - Không giao CCCD gốc - Không làm nhiệm vụ nạp tiền qua Telegram.
               </p>
               <div class="p-2.5 rounded-xl bg-slate-950 font-mono text-[11px] space-y-1">
-                <p class="text-cyan-300 font-bold">Hotline PA05: 0251.3820106</p>
+                <p class="text-cyan-300 font-bold">Hotline Công an TP. Đồng Nai: 0251.3685134</p>
                 <p class="text-amber-300 font-bold">BQL KCN (DIZA): 0251.3892378</p>
               </div>
             </div>
@@ -2078,7 +2173,7 @@ const App = {
             <p class="recommendation-item"><strong>1. Khuyến cáo Phòng PA05 - Công an Thành phố Đồng Nai:</strong> Người tìm việc tuyệt đối không nộp tiền cọc, tiền làm thẻ, tiền giữ chỗ hoặc mua đồng phục. Không làm nhiệm vụ nạp tiền hoặc chuyển tiền để nhận việc làm thêm online.</p>
             <p class="recommendation-item"><strong>2. Nguyên tắc an toàn lao động:</strong> Không bàn giao CCCD bản gốc, hộ khẩu gốc hay thẻ ngân hàng cá nhân cho bất kỳ ai. Luôn yêu cầu hợp đồng lao động rõ ràng bằng văn bản khi nhận việc.</p>
             <div class="recommendation-item pt-2 border-t border-slate-200 flex flex-wrap gap-4 text-[11px] font-bold text-slate-800">
-              <span>Hotline PA05 Công an Đồng Nai: 0251.3820106</span>
+              <span>Hotline Công an TP. Đồng Nai: 0251.3685134</span>
               <span>•</span>
               <span>BQL KCN Đồng Nai (DIZA): 0251.3892378</span>
             </div>
@@ -2154,7 +2249,18 @@ const App = {
 
   resetScanForm() {
     this.wizardDraft = {
-      step1: { companyName: '', kcn: 'KCN Biên Hòa 2', position: '', salary: '', contact: '', applicationMethod: 'Trực tiếp tại cổng KCN' },
+      step1: {
+      companyName: '',
+      kcn: 'KCN Biên Hòa 2',
+      kcnSelectValue: 'KCN Biên Hòa 2',
+      kcnKhac: '',
+      position: '',
+      salary: '',
+      contact: '',
+      applicationMethod: 'Trực tiếp tại cổng KCN',
+      applicationMethodSelectValue: 'Trực tiếp tại cổng KCN',
+      applicationMethodKhac: ''
+    },
       step2: { content: '', quickFlags: { feeRequired: false, noInterview: false, privateChat: false, keepIdDoc: false, unrealisticPay: false, taskDeposit: false } },
       step3: { analysisResult: null },
       step4: { checklist: { noDepositPaid: false, noOriginalIdGiven: false, verifiedAtGate: false, verifiedViaHotline: false, clearLaborContract: false } }
@@ -2749,9 +2855,9 @@ const App = {
             </p>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <a href="tel:02513820106" class="px-4 py-2 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-300 text-xs font-bold flex items-center gap-2 transition-all shadow-sm">
+            <a href="tel:02513685134" class="px-4 py-2 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-300 text-xs font-bold flex items-center gap-2 transition-all shadow-sm">
               <i data-lucide="phone-call" class="w-4 h-4 text-red-400 animate-pulse"></i>
-              <span>Hotline PA05: 0251.3820106</span>
+              <span>Hotline Công an TP. Đồng Nai: 0251.3685134</span>
             </a>
           </div>
         </div>
@@ -2909,7 +3015,7 @@ const App = {
                     03
                   </span>
                   <h4 class="text-sm font-extrabold text-red-400 uppercase tracking-tight">
-                    Bước 3: Trình báo Công an & Gọi PA05 Đồng Nai (0251.3820106)
+                    Bước 3: Trình báo Công an & Gọi Hotline (0251.3685134)
                   </h4>
                 </div>
                 <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
@@ -2919,15 +3025,15 @@ const App = {
 
               <div class="pl-9 space-y-3 text-xs text-slate-300 leading-relaxed">
                 <p>
-                  Đến ngay <strong>Công an xã / phường</strong> nơi bạn cư trú hoặc Đội An ninh mạng - Phòng PA05 Công an thành phố Đồng Nai để gửi đơn tố giác tội phạm.
+                  Đến ngay <strong>Công an xã / phường</strong> nơi bạn cư trú hoặc Công an thành phố Đồng Nai để gửi đơn tố giác tội phạm.
                 </p>
                 <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <span class="text-slate-400 text-[11px] block">Đường dây nóng tiếp nhận lừa đảo công nghệ cao:</span>
-                    <strong class="text-white text-sm font-mono text-cyan-300">Công an thành phố Đồng Nai (PA05): 0251.3820106</strong>
+                    <strong class="text-white text-sm font-mono text-cyan-300">Công an thành phố Đồng Nai: 0251.3685134</strong>
                   </div>
-                  <a href="tel:02513820106" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md flex-shrink-0">
-                    <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Bấm Gọi 0251.3820106
+                  <a href="tel:02513685134" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md flex-shrink-0">
+                    <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Bấm Gọi 0251.3685134
                   </a>
                 </div>
                 <p class="text-[11px] text-slate-400">
@@ -3089,11 +3195,11 @@ const App = {
               </div>
               <div class="p-3 rounded-xl bg-slate-950 font-mono space-y-1">
                 <div class="text-slate-400 text-[11px]">Hotline khẩn cấp:</div>
-                <div class="text-red-400 font-bold text-base">0251.3820106</div>
+                <div class="text-red-400 font-bold text-base">0251.3685134</div>
                 <div class="text-slate-400 text-[10px]">Địa chỉ: Số 161 Phạm Văn Thuận, P. Tân Tiến, Phường Biên Hòa (địa chỉ cũ: TP. Biên Hòa), Đồng Nai</div>
               </div>
-              <a href="tel:02513820106" class="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
-                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Gọi Ngay 0251.3820106
+              <a href="tel:02513685134" class="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
+                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Gọi Ngay 0251.3685134
               </a>
             </div>
 
@@ -3367,7 +3473,7 @@ const App = {
         </div>
         <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 text-slate-200 shadow-sm max-w-[88%] space-y-1.5 text-xs leading-relaxed">
           <p>👋 Chào bạn! Mình là <strong>Jobi</strong> - Trợ lý AI Hỗ trợ Khẩn cấp.</p>
-          <p>Bạn đang gặp rắc rối với tin tuyển dụng, hay lỡ làm theo yêu cầu của kẻ gian? Hãy gõ tình trạng của bạn vào đây nhé!</p>
+          <p>Bạn đang gặp rắc rối với tin tuyển dụng, hay lỡ làm theo yêu cầu của kẻ gian? Hãy gõ tình trạng của bạn vào đây hoặc gọi ngay Hotline Công an TP. Đồng Nai: <strong>0251.3685134</strong> để được hướng dẫn!</p>
         </div>
       </div>
     `;
@@ -3423,7 +3529,7 @@ const App = {
         </div>
         <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 text-slate-200 shadow-sm max-w-[88%] space-y-1.5 text-xs leading-relaxed">
           <p>👋 Chào bạn! Mình là <strong>Jobi</strong> - Trợ lý AI Hỗ trợ Khẩn cấp.</p>
-          <p>Bạn đang gặp rắc rối với tin tuyển dụng, hay lỡ làm theo yêu cầu của kẻ gian? Hãy gõ tình trạng của bạn vào đây nhé!</p>
+          <p>Bạn đang gặp rắc rối với tin tuyển dụng, hay lỡ làm theo yêu cầu của kẻ gian? Hãy gõ tình trạng của bạn vào đây hoặc gọi ngay Hotline Công an TP. Đồng Nai: <strong>0251.3685134</strong> để được hướng dẫn!</p>
         </div>
       </div>
     `;
@@ -3734,7 +3840,7 @@ const App = {
           </p>
           <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-200 text-xs leading-relaxed space-y-1.5 mt-2">
             <p class="font-bold text-cyan-300">🛡️ HƯỚNG DẪN HỢP PHÁP DUY NHẤT HIỆN NAY:</p>
-            <p>Cách duy nhất và đúng pháp luật hiện nay là bạn hãy <strong>in toàn bộ sao kê chuyển khoản, chụp màn hình chat</strong> và mang ra trình báo trực tiếp tại <strong>Trụ sở Công an phường/xã gần nhất</strong>. Hoặc gọi số hotline <strong>Phòng An ninh mạng Công an Đồng Nai (PA05): 0251.3820106</strong> để được hướng dẫn nộp đơn tố giác.</p>
+            <p>Cách duy nhất và đúng pháp luật hiện nay là bạn hãy <strong>in toàn bộ sao kê chuyển khoản, chụp màn hình chat</strong> và mang ra trình báo trực tiếp tại <strong>Trụ sở Công an phường/xã gần nhất</strong>. Hoặc gọi số hotline <strong>Công an Thành phố Đồng Nai: 0251.3685134</strong> để được hướng dẫn nộp đơn tố giác.</p>
           </div>
         </div>
       `;
@@ -3759,7 +3865,7 @@ const App = {
               <span>✅ Đã cắt đứt đường rút tiền của kẻ gian!</span>
             </p>
             <p class="text-slate-200 text-xs leading-relaxed">
-              Thở phào nhẹ nhõm! Tốt lắm. Giờ bạn hãy <strong>chụp lại toàn bộ lịch sử chat và bill chuyển tiền</strong>, rồi gọi ngay cho <strong>Phòng An ninh mạng Công an Đồng Nai (PA05): 0251.3820106</strong> hoặc đến Công an địa phương để trình báo nhé.
+              Thở phào nhẹ nhõm! Tốt lắm. Giờ bạn hãy <strong>chụp lại toàn bộ lịch sử chat và bill chuyển tiền</strong>, rồi gọi ngay cho <strong>Công an Thành phố Đồng Nai: 0251.3685134</strong> hoặc đến Công an địa phương để trình báo nhé.
             </p>
           </div>
         `;
@@ -3804,7 +3910,7 @@ const App = {
               Báo động đỏ! Bạn cần đăng ngay thông báo lên trang cá nhân (Zalo/Facebook) tuyên bố bị lộ CCCD để phòng hờ bị mạo danh vay nợ, và đến Công an phường trình báo để cấp giấy xác nhận không thực hiện các giao dịch vay đó nhé!
             </p>
             <div class="p-2.5 rounded-xl bg-red-950/40 border border-red-700/60 text-slate-200 text-xs leading-relaxed space-y-1">
-              <p>👉 Việc trình báo Công an phường giúp bạn có bằng chứng ngoại phạm pháp lý nếu kẻ gian dùng CCCD đó để mở tài khoản rửa tiền hoặc vay tín dụng đen. Hotline PA05 Đồng Nai: <strong>0251.3820106</strong>.</p>
+              <p>👉 Việc trình báo Công an phường giúp bạn có bằng chứng ngoại phạm pháp lý nếu kẻ gian dùng CCCD đó để mở tài khoản rửa tiền hoặc vay tín dụng đen. Hotline Công an TP. Đồng Nai: <strong>0251.3685134</strong>.</p>
             </div>
           </div>
         `;
@@ -3929,7 +4035,18 @@ const App = {
   // 3. XỬ LÝ NÚT "KIỂM TRA TIN MỚI": XÓA TRẮNG FORM & QUAY VỀ BƯỚC 1
   resetScanForm() {
     this.wizardDraft = {
-      step1: { companyName: '', kcn: 'KCN Biên Hòa 2', position: '', salary: '', contact: '', applicationMethod: 'Trực tiếp tại cổng KCN' },
+      step1: {
+      companyName: '',
+      kcn: 'KCN Biên Hòa 2',
+      kcnSelectValue: 'KCN Biên Hòa 2',
+      kcnKhac: '',
+      position: '',
+      salary: '',
+      contact: '',
+      applicationMethod: 'Trực tiếp tại cổng KCN',
+      applicationMethodSelectValue: 'Trực tiếp tại cổng KCN',
+      applicationMethodKhac: ''
+    },
       step2: { content: '', quickFlags: { feeRequired: false, noInterview: false, privateChat: false, keepIdDoc: false, unrealisticPay: false, taskDeposit: false } },
       step3: { analysisResult: null },
       step4: { checklist: { noDepositPaid: false, noOriginalIdGiven: false, verifiedAtGate: false, verifiedViaHotline: false, clearLaborContract: false } }

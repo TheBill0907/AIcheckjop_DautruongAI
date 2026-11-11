@@ -221,8 +221,8 @@ html.light .sidebar-nav-item span.bg-cyan-500\/10 {
   font-weight: 800 !important;
 }
 
-/* NÚT "Hotline PA05" Ở GÓC DƯỚI: Đỏ Crimson sang trọng (#BE123C / #FFFFFF, hover #E11D48) */
-html.light a[href^="tel:02513820106"] {
+/* NÚT "Hotline Công an TP. Đồng Nai" Ở GÓC DƯỚI: Đỏ Crimson sang trọng (#BE123C / #FFFFFF, hover #E11D48) */
+html.light a[href^="tel:02513685134"] {
   background-color: #be123c !important;
   color: #ffffff !important;
   border: none !important;
@@ -231,12 +231,12 @@ html.light a[href^="tel:02513820106"] {
   transition: all 0.2s ease !important;
 }
 
-html.light a[href^="tel:02513820106"]:hover {
+html.light a[href^="tel:02513685134"]:hover {
   background-color: #e11d48 !important;
   box-shadow: 0 6px 16px rgba(225, 29, 72, 0.4) !important;
 }
 
-html.light a[href^="tel:02513820106"] i {
+html.light a[href^="tel:02513685134"] i {
   color: #ffffff !important;
 }
 

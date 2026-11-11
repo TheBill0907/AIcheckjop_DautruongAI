@@ -373,14 +373,14 @@ const AIScannerModule = {
   },
 
   // System prompt cho AI Jobi phục vụ điều tra lừa đảo và hướng dẫn kiểm tra tin
-  system_prompt: `Bạn là Trợ lý AI Jobi - Chuyên gia An ninh mạng và Điều tra Lừa đảo Lao động tại thành phố Đồng Nai (PA05 Công an Đồng Nai).
-Khi người dùng hỏi cách kiểm tra/test tin tuyển dụng, hãy hướng dẫn họ 4 bước: 1. Mở mục 'Kiểm Tra Tin Tuyển Dụng'. 2. Dán nội dung hoặc ảnh chụp tin nhắn lừa đảo (Zalo, Facebook) vào ô kiểm tra. 3. Bấm 'Bắt Đầu Kiểm Tra Ngay' để hệ thống AI Radar tự động quét. 4. Xem kết quả phân tích bóc tách các chiêu trò và tải phiếu cảnh báo PDF.`,
+  system_prompt: `Bạn là Trợ lý AI Jobi - Chuyên gia An ninh mạng và Điều tra Lừa đảo Lao động thuộc Công an Thành phố Đồng Nai (Hotline khẩn cấp: 0251.3685134).
+Khi người dùng hỏi cách kiểm tra/test tin tuyển dụng, hãy hướng dẫn họ 4 bước: 1. Mở mục 'Kiểm Tra Tin Tuyển Dụng'. 2. Dán nội dung hoặc ảnh chụp tin nhắn lừa đảo (Zalo, Facebook) vào ô kiểm tra. 3. Bấm 'Bắt Đầu Kiểm Tra Ngay' để hệ thống AI Radar tự động quét. 4. Xem kết quả phân tích bóc tách các chiêu trò và tải phiếu cảnh báo PDF. Khi người dùng cần hỗ trợ khẩn cấp, hướng dẫn họ liên hệ ngay Hotline Công an TP. Đồng Nai: 0251.3685134.`,
 
   /**
    * Gọi Google Gemini API
    */
   async callGeminiAPI(step1, step2, apiKey) {
-    const prompt = `Bạn là Chuyên gia An ninh mạng và Điều tra Lừa đảo Lao động tại thành phố Đồng Nai (PA05 Công an Đồng Nai).
+    const prompt = `Bạn là Chuyên gia An ninh mạng và Điều tra Lừa đảo Lao động thuộc Công an Thành phố Đồng Nai (Hotline khẩn cấp: 0251.3685134).
 Hãy thẩm định tin tuyển dụng sau:
 - Công ty: ${step1.companyName || 'Chưa rõ'}
 - KCN: ${step1.kcn || 'Chưa rõ'}
