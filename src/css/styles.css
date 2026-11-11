@@ -41,8 +41,15 @@ html.light #sidebar .border-t {
   border-color: #f1f5f9 !important;
 }
 
-html.light #sidebar .sidebar-logo-inner {
-  background-color: #ffffff !important;
+/* Logo thương hiệu Sidebar Header */
+.brand-logo-img {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d4af37; /* Màu vàng gold */
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  flex-shrink: 0;
 }
 
 html.light header.glass-nav {
