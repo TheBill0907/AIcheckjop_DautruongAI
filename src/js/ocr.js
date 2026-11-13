@@ -118,7 +118,18 @@ Yêu cầu: Không cần kinh nghiệm, làm việc trực tuyến tại nhà.
   },
 
   /**
-   * Tiến trình quét OCR với thanh Progress Bar
+   * Hàm dọn rác nhanh chuỗi OCR bằng 2 dòng Regex nhẹ nhàng:
+   * Lọc bỏ ký tự lạ (như {, }, ¢, _, =) mà không làm hỏng chữ tiếng Việt gốc
+   */
+  cleanOCRText(text) {
+    if (!text || typeof text !== "string") return "";
+    let cleanedText = text.replace(/[^\w\sàáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ0-9.,:;!?()\-+\/]/g, ' ');
+    cleanedText = cleanedText.replace(/\s+/g, ' ').trim(); // Gom các khoảng trắng thừa lại thành 1 khoảng trắng cho đẹp
+    return cleanedText;
+  },
+
+  /**
+   * Tiến trình quét OCR nguyên bản trực tiếp từ tệp ảnh (không can thiệp Canvas trung gian)
    */
   async runOCRProcess(dataUrl, fileName, fileSize = 0) {
     const loadingElem = document.getElementById("ocr-loading");
@@ -133,7 +144,7 @@ Yêu cầu: Không cần kinh nghiệm, làm việc trực tuyến tại nhà.
     let extractedText = "";
 
     try {
-      // 1. Thử nhận diện qua Tesseract nếu có
+      // 1. Thử nhận diện qua Tesseract trực tiếp từ ảnh gốc (không qua Canvas trung gian)
       if (window.Tesseract) {
         if (progressBar) progressBar.style.width = "50%";
         if (loadingMsg) loadingMsg.textContent = "AI OCR đang đọc văn bản tiếng Việt...";
@@ -170,15 +181,27 @@ Nội dung trao đổi tin nhắn tuyển dụng:
     if (loadingMsg) loadingMsg.textContent = "Hoàn tất trích xuất!";
     await new Promise(r => setTimeout(r, 300));
 
-    // Điền văn bản vào textarea
-    if (textarea) {
-      const existing = textarea.value.trim();
-      textarea.value = existing ? existing + "\n\n" + extractedText : extractedText;
+    // [1. ĐỌC TRỰC TIẾP & LỌC RÁC NHANH VỚI 2 DÒNG REGEX]
+    let cleanedText = extractedText.replace(/[^\w\sàáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ0-9.,:;!?()\-+\/]/g, ' ');
+    cleanedText = cleanedText.replace(/\s+/g, ' ').trim(); // Gom các khoảng trắng thừa lại thành 1 khoảng trắng cho đẹp
+
+    // [2. HIỂN THỊ KẾT QUẢ ĐÚNG VÀO TEXTAREA]
+    const targetTextarea = document.getElementById("w-content") || document.querySelector("#w-content");
+    if (targetTextarea) {
+      targetTextarea.value = cleanedText;
+      targetTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+      targetTextarea.dispatchEvent(new Event('change', { bubbles: true }));
+
       if (window.App?.updateCharCount) {
         window.App.updateCharCount();
       }
+      if (window.App?.wizardDraft?.step2) {
+        window.App.wizardDraft.step2.content = cleanedText;
+      }
+      targetTextarea.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
     }
 
+    // Ẩn hiệu ứng loading
     if (loadingElem) loadingElem.classList.add("hidden");
 
     if (window.App?.showToast) {
@@ -198,12 +221,21 @@ Nội dung trao đổi tin nhắn tuyển dụng:
 
     this.displayImagePreview(svgPreview, sample.name + ".png");
 
-    const textarea = document.getElementById("w-content");
-    if (textarea) {
-      textarea.value = sample.extractedText;
+    const textArea = document.querySelector('#w-content') || document.getElementById('w-content');
+    if (textArea) {
+      textArea.value = sample.extractedText;
+
+      // Kích hoạt sự kiện để giao diện và bộ đếm ký tự cập nhật
+      textArea.dispatchEvent(new Event('input', { bubbles: true }));
+      textArea.dispatchEvent(new Event('change', { bubbles: true }));
+
       if (window.App?.updateCharCount) {
         window.App.updateCharCount();
       }
+      if (window.App?.wizardDraft?.step2) {
+        window.App.wizardDraft.step2.content = textArea.value;
+      }
+      textArea.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
     }
 
     // Tự động tick các checkbox dấu hiệu tương ứng

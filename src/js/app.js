@@ -235,7 +235,14 @@ const DEFAULT_KCN_ENTERPRISES = [
 ];
 
 // BỘ NHỚ NGỮ CẢNH (STATE MACHINE) & BỘ ĐẾM THỜI GIAN CỦA CHATBOT JOBI
-let currentChatState = localStorage.getItem('jobi_chat_state') || "idle";
+// Tự động làm mới khi tải lại trang (F5 / Reload) - không nạp lại đoạn chat cũ từ phiên trước
+try {
+  localStorage.removeItem('jobi_chat_history');
+  localStorage.removeItem('jobi_chat_state');
+  sessionStorage.removeItem('jobi_chat_history');
+  sessionStorage.removeItem('jobi_chat_state');
+} catch (e) {}
+let currentChatState = "idle";
 let chatInactivityTimer = null;
 
 /**
@@ -245,6 +252,8 @@ function resetChatBox() {
   try {
     localStorage.removeItem('jobi_chat_history');
     localStorage.removeItem('jobi_chat_state');
+    sessionStorage.removeItem('jobi_chat_history');
+    sessionStorage.removeItem('jobi_chat_state');
   } catch (e) {}
 
   if (typeof App !== 'undefined') {
@@ -365,7 +374,16 @@ const App = {
       chatBadge.addEventListener('click', handleBadgeOpen);
     }
 
-    // 9. Tải lịch sử trò chuyện Chatbot Jobi từ LocalStorage
+    // 9. Làm mới đoạn chat Jobi khi tải lại trang (F5 / Reload):
+    // Tự động xóa lịch sử tin nhắn cũ trong localStorage/sessionStorage, luôn làm mới với duy nhất tin chào ban đầu
+    try {
+      localStorage.removeItem('jobi_chat_history');
+      localStorage.removeItem('jobi_chat_state');
+      sessionStorage.removeItem('jobi_chat_history');
+      sessionStorage.removeItem('jobi_chat_state');
+    } catch (e) {}
+    this.chatHistory = [];
+    this.setChatState('idle');
     this.loadChatHistory();
 
     // 10. Khởi tạo Lucide Icons
@@ -3445,6 +3463,7 @@ const App = {
   saveChatHistory() {
     try {
       localStorage.setItem('jobi_chat_history', JSON.stringify(this.chatHistory || []));
+      sessionStorage.setItem('jobi_chat_history', JSON.stringify(this.chatHistory || []));
     } catch (e) {
       console.warn('Lỗi lưu jobi_chat_history:', e);
     }
@@ -3515,6 +3534,8 @@ const App = {
     try {
       localStorage.removeItem('jobi_chat_history');
       localStorage.removeItem('jobi_chat_state');
+      sessionStorage.removeItem('jobi_chat_history');
+      sessionStorage.removeItem('jobi_chat_state');
     } catch (e) {}
     this.chatHistory = [];
     this.setChatState('idle');
@@ -3745,6 +3766,329 @@ const App = {
   },
 
   // =========================================================================
+  // BỘ NÃO TƯ VẤN HƯỚNG NGHIỆP ĐỘNG THEO DỮ LIỆU THỰC TẾ NGƯỜI DÙNG NHẬP
+  // =========================================================================
+  generateDynamicCareerAdvice(rawUserMessage) {
+    const raw = (rawUserMessage || '').trim();
+    const q = raw.toLowerCase();
+
+    // 1. TRÍCH XUẤT ĐẶC ĐIỂM THỰC TẾ NGƯỜI DÙNG NHẬP (KHÔNG ÁP ĐẶT MẪU)
+    // Chiều cao
+    let height = '';
+    const heightRegex = /(?:cao|chiều cao|chieu cao|tầm|tam)?\s*(\d{1}[.,m]\d{1,2}(?:\s*m)?|\d{2,3}\s*cm)/i;
+    const hMatch = raw.match(heightRegex);
+    if (hMatch) {
+      height = hMatch[1].replace(/\s+/g, '').replace(',', '.');
+      if (/^\d{3}$/.test(height)) height = height + 'cm';
+    } else if (q.includes('cao ráo')) {
+      height = 'Cao ráo';
+    } else if (q.includes('thấp bé') || q.includes('nhỏ con')) {
+      height = 'Nhỏ nhắn';
+    }
+
+    // Giới tính
+    let gender = '';
+    if (/\b(nữ|con gái|em gái|phái nữ)\b/i.test(q)) gender = 'Nữ';
+    else if (/\b(nam|con trai|anh|nam giới)\b/i.test(q)) gender = 'Nam';
+
+    // Độ tuổi
+    let age = '';
+    const ageMatch = raw.match(/\b(\d{1,2})\s*(?:tuổi|t)\b/i);
+    if (ageMatch) age = ageMatch[1] + ' tuổi';
+
+    // Trình độ học vấn / Bằng cấp / Kinh nghiệm
+    const education = [];
+    if (q.includes('đại học') || q.includes('cử nhân') || q.includes('kỹ sư')) education.push('Đại học / Kỹ sư');
+    else if (q.includes('cao đẳng')) education.push('Cao đẳng');
+    else if (q.includes('trung cấp') || q.includes('học nghề') || q.includes('trường nghề')) education.push('Trung cấp / Trường nghề');
+    else if (q.includes('cấp 3') || q.includes('thpt') || q.includes('lớp 12')) education.push('Tốt nghiệp THPT (Cấp 3)');
+    else if (q.includes('cấp 2') || q.includes('lớp 9')) education.push('Học vấn Cấp 2');
+
+    if (q.includes('chưa có bằng') || q.includes('không có bằng') || q.includes('không bằng cấp') || q.includes('chưa có kinh nghiệm') || q.includes('chua co kinh nghiem') || q.includes('mới ra trường')) {
+      education.push('Chưa có kinh nghiệm / Chưa có bằng cấp chuyên môn');
+    }
+
+    // Sở thích / Thể lực / Tố chất cá nhân
+    const traits = [];
+    if (q.includes('đá bóng') || q.includes('da bong') || q.includes('đá banh') || q.includes('da banh') || q.includes('bóng đá')) traits.push('Sở thích đá bóng');
+    if (q.includes('thể thao') || q.includes('the thao') || q.includes('gym') || q.includes('chạy bộ') || q.includes('bơi lội') || q.includes('cầu lông') || q.includes('bóng chuyền') || q.includes('võ')) traits.push('Yêu thích thể thao');
+    if (q.includes('sức khỏe tốt') || q.includes('thể lực tốt') || q.includes('sức bền') || q.includes('khỏe mạnh')) traits.push('Thể lực & sức khỏe dồi dào');
+    if (q.includes('tỉ mỉ') || q.includes('ti mi') || q.includes('khéo tay') || q.includes('cẩn thận') || q.includes('kiên nhẫn')) traits.push('Tỉ mỉ, khéo tay, cẩn thận');
+    if (q.includes('game') || q.includes('chơi game')) traits.push('Yêu thích công nghệ / Game');
+    if (q.includes('lái xe') || q.includes('thích lái')) traits.push('Thích lái xe / Di chuyển');
+
+    // Kỹ năng / Định hướng ngành nghề
+    const skills = [];
+    const matched = {
+      tech: false,      // Điện tử / Cơ khí / Tự động hóa
+      garment: false,   // May mặc / Giày da / Hàng tiêu dùng
+      office: false,    // CNTT / Kế toán / Nhân sự / Ngoại ngữ
+      logistics: false  // Kho vận / Lái xe / Bảo vệ / Lao động phổ thông
+    };
+
+    // Nhóm 1: Điện tử / Cơ khí / Tự động hóa
+    if (q.includes('điện tử') || q.includes('dien tu') || q.includes('vi mạch') || q.includes('bo mạch') || q.includes('smt') || q.includes('linh kiện')) {
+      skills.push('Ngành Điện tử / Bo mạch');
+      matched.tech = true;
+    }
+    if (q.includes('cơ khí') || q.includes('co khi') || q.includes('tự động hóa') || q.includes('hàn') || q.includes('tiện') || q.includes('phay') || q.includes('máy móc') || q.includes('bảo trì') || q.includes('cnc') || q.includes('plc')) {
+      skills.push('Cơ khí / Tự động hóa / Vận hành máy');
+      matched.tech = true;
+    }
+
+    // Nhóm 2: May mặc / Giày da / Sản xuất tiêu dùng
+    if (q.includes('may') || q.includes('may mặc') || q.includes('dệt') || q.includes('giày') || q.includes('da giày') || q.includes('giày da')) {
+      skills.push('May mặc / Giày da');
+      matched.garment = true;
+    }
+    if (q.includes('thực phẩm') || q.includes('bánh kẹo') || q.includes('đồ uống') || q.includes('chế biến') || q.includes('nông sản') || q.includes('thức ăn chăn nuôi')) {
+      skills.push('Chế biến thực phẩm & Tiêu dùng');
+      matched.garment = true;
+    }
+
+    // Nhóm 3: CNTT / Kế toán / Nhân sự / Ngoại ngữ
+    if (q.includes('tiếng trung') || q.includes('tieng trung') || q.includes('tiếng hoa')) {
+      skills.push('Ngoại ngữ: Tiếng Trung');
+      matched.office = true;
+    }
+    if (q.includes('tiếng anh') || q.includes('tieng anh')) {
+      skills.push('Ngoại ngữ: Tiếng Anh');
+      matched.office = true;
+    }
+    if (q.includes('tiếng nhật') || q.includes('tieng nhat')) {
+      skills.push('Ngoại ngữ: Tiếng Nhật');
+      matched.office = true;
+    }
+    if (q.includes('tiếng hàn') || q.includes('tieng han')) {
+      skills.push('Ngoại ngữ: Tiếng Hàn');
+      matched.office = true;
+    }
+    if (q.includes('cntt') || q.includes('it') || q.includes('tin học') || q.includes('lập trình') || q.includes('phần mềm')) {
+      skills.push('Công nghệ thông tin (IT)');
+      matched.office = true;
+    }
+    if (q.includes('kế toán') || q.includes('ke toan') || q.includes('tài chính')) {
+      skills.push('Kế toán / Tài chính');
+      matched.office = true;
+    }
+    if (q.includes('nhân sự') || q.includes('admin') || q.includes('văn phòng') || q.includes('hành chính')) {
+      skills.push('Hành chính nhân sự / Văn phòng');
+      matched.office = true;
+    }
+
+    // Nhóm 4: Kho vận / Lái xe / Bảo vệ / Lao động phổ thông
+    if (q.includes('lái xe') || q.includes('tài xế') || q.includes('bằng b2') || q.includes('b2') || q.includes('bằng c') || q.includes('xe nâng')) {
+      skills.push('Lái xe / Vận tải (Bằng B2/C/Xe nâng)');
+      matched.logistics = true;
+    }
+    if (q.includes('kho') || q.includes('thủ kho') || q.includes('logistics') || q.includes('giao nhận') || q.includes('bốc xếp')) {
+      skills.push('Kho vận / Quản lý kho');
+      matched.logistics = true;
+    }
+    if (q.includes('bảo vệ') || q.includes('an ninh')) {
+      skills.push('An ninh / Bảo vệ');
+      matched.logistics = true;
+    }
+    if (q.includes('lao động phổ thông') || q.includes('ldpt') || q.includes('đóng gói') || q.includes('dán tem') || q.includes('công nhân')) {
+      skills.push('Lao động phổ thông / Đóng gói');
+      matched.logistics = true;
+    }
+
+    const isAll = !matched.tech && !matched.garment && !matched.office && !matched.logistics;
+
+    // 2. NHẮC LẠI ĐÚNG ĐẶC ĐIỂM NGƯỜI DÙNG NHẬP (KHÔNG CỐ ĐỊNH MẪU)
+    const echoList = [];
+    if (gender) echoList.push(`Giới tính: <strong>${gender}</strong>`);
+    if (age) echoList.push(`Độ tuổi: <strong>${age}</strong>`);
+    if (height) echoList.push(`Chiều cao / Vóc dáng: <strong>${height}</strong>`);
+    if (traits.length > 0) echoList.push(`Sở thích / Tố chất: <strong>${traits.join(', ')}</strong>`);
+    if (education.length > 0) echoList.push(`Trình độ học vấn: <strong>${education.join(', ')}</strong>`);
+    if (skills.length > 0) echoList.push(`Kỹ năng / Định hướng: <strong>${skills.join(', ')}</strong>`);
+
+    const echoHtml = echoList.length > 0
+      ? echoList.map(item => `<p>• ${item}</p>`).join('')
+      : `<p>• Định hướng nghề nghiệp và tìm kiếm công việc thực tế tại các KCN Đồng Nai.</p>`;
+
+    // 3. PHÂN TÍCH ĐIỂM MẠNH TƯƠNG ỨNG TỰ NHIÊN
+    const strengthItems = [];
+    if (traits.some(t => t.includes('bóng') || t.includes('thao') || t.includes('Thể lực'))) {
+      strengthItems.push('<p>• <strong>Thể lực & Sức bền:</strong> Nhờ thói quen rèn luyện thể thao/đá bóng, bạn có nền tảng thể lực dồi dào, sự dẻo dai và phản xạ nhanh nhạy – rất thích nghi với môi trường sản xuất theo ca kíp.</p>');
+    }
+    if (traits.some(t => t.includes('Tỉ mỉ') || t.includes('khéo tay'))) {
+      strengthItems.push('<p>• <strong>Độ tỉ mỉ & Khéo léo:</strong> Phẩm chất cẩn thận là lợi thế lớn trong việc kiểm soát số liệu kế toán, phòng sạch lắp ráp vi mạch hoặc kiểm tra chất lượng sản phẩm (QC).</p>');
+    }
+    if (height) {
+      if (height.includes('1m7') || height.includes('1m8') || parseInt(height) >= 170) {
+        strengthItems.push(`<p>• <strong>Lợi thế chiều cao (${height}):</strong> Vóc dáng cao ráo mang lại sải tay và tầm quan sát tốt khi vận hành máy móc công nghiệp, bao quát dây chuyền hoặc đứng các vị trí kỹ thuật, an ninh.</p>`);
+      } else if (height.includes('1m5') || height.includes('1m6') || (parseInt(height) < 170 && parseInt(height) >= 150)) {
+        strengthItems.push(`<p>• <strong>Vóc dáng linh hoạt (${height}):</strong> Chiều cao vừa vặn rất linh hoạt, thuận lợi thao tác trên các dây chuyền lắp ráp linh kiện nhẹ, dán tem, may mặc hoặc công việc hành chính văn phòng.</p>`);
+      }
+    }
+    if (skills.some(s => s.includes('Tiếng Trung') || s.includes('Tiếng Nhật') || s.includes('Tiếng Hàn') || s.includes('Tiếng Anh'))) {
+      strengthItems.push('<p>• <strong>Lợi thế ngoại ngữ vượt trội:</strong> Hàng trăm tập đoàn FDI tại Đồng Nai (Đài Loan, Trung Quốc, Nhật, Hàn, Châu Âu) luôn ưu tiên tuyển dụng ứng viên biết ngoại ngữ với mức thu nhập cao và cơ hội thăng tiến vượt bậc.</p>');
+    }
+    if (skills.some(s => s.includes('Điện tử') || s.includes('Cơ khí'))) {
+      strengthItems.push('<p>• <strong>Kỹ năng công nghệ mũi nhọn:</strong> Cơ khí, điện tử và tự động hóa là các lĩnh vực khát nhân lực kỹ thuật chất lượng cao tại Đồng Nai.</p>');
+    }
+    if (skills.some(s => s.includes('Lái xe') || s.includes('Kho vận'))) {
+      strengthItems.push('<p>• <strong>Cung ứng chuỗi logistics:</strong> Có bằng lái B2/C hoặc kỹ năng kho bãi giúp bạn dễ dàng ứng tuyển ngay vào hệ thống kho vận tại các KCN.</p>');
+    }
+    if (education.some(e => e.includes('Chưa có kinh nghiệm') || e.includes('Cấp 2') || e.includes('THPT'))) {
+      strengthItems.push('<p>• <strong>Khả năng đào tạo nhanh:</strong> Đa số các doanh nghiệp lớn tại Đồng Nai luôn sẵn sàng tiếp nhận lao động phổ thông và đào tạo nghề có trả lương đầy đủ ngay từ ngày đầu.</p>');
+    }
+    if (strengthItems.length === 0) {
+      strengthItems.push('<p>• <strong>Khả năng hòa nhập:</strong> Thị trường lao động Đồng Nai với hơn 30 KCN đang rất sôi động, luôn mở rộng cơ hội cho ứng viên chịu khó và gắn bó lâu dài.</p>');
+    }
+
+    // 4. GỢI Ý VỊ TRÍ VIỆC LÀM & CÔNG TY UY TÍN TƯƠNG ỨNG TẠI CÁC KCN ĐỒNG NAI
+    const roleBlocks = [];
+    const companyBlocks = [];
+
+    // Nhóm 1: Điện tử / Cơ khí / Tự động hóa
+    if (matched.tech || isAll) {
+      roleBlocks.push(`
+        <div>
+          <strong class="text-cyan-300">⚙️ Ngành Điện tử / Cơ khí / Tự động hóa:</strong>
+          <p class="pl-2">• <em>Kỹ thuật viên Điện tử / Bảo trì (Maintenance Tech):</em> Hiệu chỉnh máy SMT, bảo dưỡng thiết bị tự động.</p>
+          <p class="pl-2">• <em>Kỹ thuật viên Vận hành máy (Machine Operator):</em> Điều khiển máy gắp dán chip, máy hàn tự động, máy CNC.</p>
+          <p class="pl-2">• <em>Lắp ráp linh kiện & QC/QA:</em> Kiểm tra ngoại quan bo mạch, lắp ráp vi mạch trong phòng sạch.</p>
+        </div>
+      `);
+      companyBlocks.push(`
+        <div>
+          <strong class="text-cyan-300">📍 Doanh nghiệp Điện tử - Cơ khí tiêu biểu:</strong>
+          <p class="pl-2">• <strong>KCN Biên Hòa 2:</strong> <em>Công ty TNHH Fujitsu Việt Nam</em> (bo mạch & linh kiện bán dẫn), <em>Công ty TNHH Mabuchi Motor Việt Nam</em> (động cơ điện tử vi mô), <em>Foster Electric</em> (âm thanh điện tử).</p>
+          <p class="pl-2">• <strong>KCN Amata:</strong> <em>Công ty TNHH Brother Machinery Vietnam</em> (máy cơ điện tử), <em>Công ty TNHH Schaeffler Việt Nam</em> (linh kiện cơ điện tử tiêu chuẩn Đức).</p>
+          <p class="pl-2">• <strong>KCN Long Thành / Long Đức:</strong> <em>Công ty TNHH Robert Bosch Việt Nam</em> (công nghệ ô tô & cảm biến của Đức), <em>Meggitt Việt Nam</em> (cơ điện tử hàng không), <em>Công ty TNHH SMC Manufacturing Việt Nam</em> (KCN Long Đức - tự động hóa khí nén).</p>
+        </div>
+      `);
+    }
+
+    // Nhóm 2: May mặc / Giày da / Hàng tiêu dùng
+    if (matched.garment || isAll) {
+      roleBlocks.push(`
+        <div>
+          <strong class="text-emerald-300">🧵 Ngành May mặc / Giày da / Sản xuất tiêu dùng:</strong>
+          <p class="pl-2">• <em>Công nhân may & Ráp giày da:</em> Tham gia chuyền may công nghiệp, dán ép đế giày thể thao.</p>
+          <p class="pl-2">• <em>Vận hành máy chế biến thực phẩm & Đóng gói:</em> Giám sát dây chuyền đóng gói, dán nhãn thành phẩm.</p>
+          <p class="pl-2">• <em>Nhân viên Kiểm định thành phẩm (QC):</em> Soát lỗi may, tiêu chuẩn form dáng giày và bao bì xuất khẩu.</p>
+        </div>
+      `);
+      companyBlocks.push(`
+        <div>
+          <strong class="text-emerald-300">📍 Doanh nghiệp May mặc - Giày da - Tiêu dùng tiêu biểu:</strong>
+          <p class="pl-2">• <strong>KCN Thạnh Phú (Vĩnh Cửu):</strong> <em>Công ty TNHH Changshin Việt Nam</em> (sản xuất giày Nike, 38.000 lao động, phúc lợi rất tốt).</p>
+          <p class="pl-2">• <strong>KCN Biên Hòa 2 & Giang Điền:</strong> <em>Công ty CP Taekwang Vina</em> (sản xuất giày thể thao xuất khẩu, tuyển trực tiếp cổng số 1).</p>
+          <p class="pl-2">• <strong>Phường Hóa An (Biên Hòa):</strong> <em>Công ty TNHH Pouchen Việt Nam</em> (sản xuất giày da xuất khẩu quy mô lớn).</p>
+          <p class="pl-2">• <strong>KCN Amata:</strong> <em>Công ty TNHH Nestlé Việt Nam</em> (chế biến thực phẩm Milo, Nescafé).</p>
+          <p class="pl-2">• <strong>KCN Biên Hòa 2:</strong> <em>Công ty CP Chăn nuôi C.P. Việt Nam</em>, <em>Cargill Việt Nam</em> (chế biến nông sản & thực phẩm).</p>
+        </div>
+      `);
+    }
+
+    // Nhóm 3: CNTT / Kế toán / Nhân sự / Ngoại ngữ
+    if (matched.office || isAll) {
+      roleBlocks.push(`
+        <div>
+          <strong class="text-indigo-300">💼 Ngành CNTT (IT) / Kế toán / Nhân sự / Ngoại ngữ:</strong>
+          <p class="pl-2">• <em>Kế toán kho / Kế toán nội bộ:</em> Quản lý chứng từ nhập xuất hàng, hóa đơn thuế, đối chiếu số liệu.</p>
+          <p class="pl-2">• <em>Nhân viên Hành chính Nhân sự (HR) & Mua hàng (Purchasing):</em> Tuyển dụng, chấm công, quản lý hồ sơ nhà máy.</p>
+          <p class="pl-2">• <em>IT Helpdesk / Quản trị mạng nhà xưởng:</em> Hỗ trợ kỹ thuật phần cứng, camera và mạng nội bộ xưởng.</p>
+          <p class="pl-2">• <em>Trợ lý & Phiên dịch (Tiếng Trung, Anh, Nhật, Hàn):</em> Cầu nối giao tiếp giữa chuyên gia nước ngoài và công nhân.</p>
+        </div>
+      `);
+      companyBlocks.push(`
+        <div>
+          <strong class="text-indigo-300">📍 Doanh nghiệp Khối Văn phòng & Ngoại ngữ tiêu biểu:</strong>
+          <p class="pl-2">• <strong>Văn phòng KCN Amata:</strong> Khối Back-office của <em>Nestlé VN</em>, <em>Brother Machinery</em>, <em>Schaeffler VN</em>.</p>
+          <p class="pl-2">• <strong>Doanh nghiệp tuyển Tiếng Trung:</strong> <em>Công ty TNHH Formosa Taffeta</em> (KCN Nhơn Trạch 3), <em>C.P. Vietnam</em> (Biên Hòa 2), <em>Taekwang Vina</em>.</p>
+          <p class="pl-2">• <strong>Doanh nghiệp tuyển Tiếng Nhật:</strong> <em>Fujitsu Việt Nam</em>, <em>Mabuchi Motor</em> (Biên Hòa 2), <em>Muto Việt Nam</em> (Nhơn Trạch 1).</p>
+          <p class="pl-2">• <strong>Doanh nghiệp tuyển Tiếng Anh / Hàn:</strong> <em>Robert Bosch</em> (Long Thành), <em>Hyosung Đồng Nai</em> (Nhơn Trạch 5).</p>
+        </div>
+      `);
+    }
+
+    // Nhóm 4: Kho vận (Logistics) / Lái xe / Bảo vệ / Lao động phổ thông
+    if (matched.logistics || isAll) {
+      roleBlocks.push(`
+        <div>
+          <strong class="text-amber-300">🚛 Ngành Kho vận (Logistics) / Lái xe / Bảo vệ / Lao động phổ thông:</strong>
+          <p class="pl-2">• <em>Tài xế lái xe tải / Xe đưa đón (Bằng B2, C) & Lái xe nâng (Forklift):</em> Vận chuyển hàng hóa liên KCN.</p>
+          <p class="pl-2">• <em>Thủ kho / Nhân viên điều phối kho vận:</em> Quản lý xuất nhập tồn, phân loại kiện hàng.</p>
+          <p class="pl-2">• <em>Nhân viên An ninh / Bảo vệ nhà xưởng:</em> Kiểm soát an ninh cổng ra vào, tuần tra an toàn PCCC.</p>
+          <p class="pl-2">• <em>Lao động phổ thông:</em> Đóng gói thành phẩm, dán tem nhãn, phân loại hàng (không yêu cầu kinh nghiệm).</p>
+        </div>
+      `);
+      companyBlocks.push(`
+        <div>
+          <strong class="text-amber-300">📍 Đơn vị Kho vận & Tuyển dụng trực tiếp tiêu biểu:</strong>
+          <p class="pl-2">• <strong>KCN Giang Điền & Trảng Bom:</strong> <em>Taekwang Logistics</em>, <em>Trung tâm Dịch vụ Việc làm tỉnh Đồng Nai</em>.</p>
+          <p class="pl-2">• <strong>Hệ thống Kho vận Logistics:</strong> Cụm kho KCN Long Thành, Kho KCN Amata, KCN Nhơn Trạch.</p>
+          <p class="pl-2">• <strong>Tuyển dụng trực tiếp tại cổng không thu phí:</strong> <em>Changshin VN</em>, <em>Taekwang Vina</em>, <em>Pouchen</em>, <em>Fujitsu</em>, <em>Nestlé</em>.</p>
+        </div>
+      `);
+    }
+
+    const partA = "Jobi đã phân tích hồ sơ và định hướng nghề nghiệp thực tế cho bạn:";
+    const partBHtml = `
+      <div class="space-y-3 text-xs leading-relaxed">
+        <!-- 1. Nhắc lại đặc điểm người dùng nhập -->
+        <div class="space-y-1">
+          <p class="font-bold text-cyan-300 flex items-center gap-1.5 text-xs">
+            <i data-lucide="user-check" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
+            <span>1. THÔNG TIN BẠN VỪA CUNG CẤP:</span>
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-cyan-500/30 text-xs text-slate-200 space-y-1 leading-relaxed">
+            ${echoHtml}
+          </div>
+        </div>
+
+        <!-- 2. Phân tích điểm mạnh cá nhân -->
+        <div class="space-y-1">
+          <p class="font-bold text-emerald-400 flex items-center gap-1.5 text-xs">
+            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+            <span>2. PHÂN TÍCH ĐIỂM MẠNH & TỐ CHẤT PHÙ HỢP:</span>
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs text-slate-200 space-y-1.5 leading-relaxed">
+            ${strengthItems.join('')}
+          </div>
+        </div>
+
+        <!-- 3. Vị trí việc làm cụ thể -->
+        <div class="space-y-1">
+          <p class="font-bold text-amber-300 flex items-center gap-1.5 text-xs">
+            <i data-lucide="briefcase" class="w-4 h-4 text-amber-300 flex-shrink-0"></i>
+            <span>3. VỊ TRÍ VIỆC LÀM PHÙ HỢP GỢI Ý:</span>
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-amber-500/30 text-xs text-slate-200 space-y-2 leading-relaxed">
+            ${roleBlocks.join('')}
+          </div>
+        </div>
+
+        <!-- 4. Đề xuất các công ty uy tín tại các KCN Đồng Nai -->
+        <div class="space-y-1">
+          <p class="font-bold text-sky-400 flex items-center gap-1.5 text-xs">
+            <i data-lucide="building-2" class="w-4 h-4 text-sky-400 flex-shrink-0"></i>
+            <span>4. DOANH NGHIỆP UY TÍN TƯƠNG ỨNG TẠI ĐỒNG NAI:</span>
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-sky-500/30 text-xs text-slate-200 space-y-2 leading-relaxed">
+            ${companyBlocks.join('')}
+          </div>
+        </div>
+
+        <!-- 5. Lời khuyên an toàn từ Jobi -->
+        <div class="p-2.5 rounded-xl bg-blue-950/40 border border-blue-500/40 text-[11px] text-cyan-200 space-y-1">
+          <p class="font-bold text-cyan-300">🛡️ LỜI KHUYÊN AN TOÀN TỪ JOBI:</p>
+          <p>• Các doanh nghiệp chính quy tại KCN Đồng Nai <strong>tuyển dụng trực tiếp tại cổng bảo vệ hoặc qua website/email phòng Nhân sự chính thức</strong>, <strong>TUYỆT ĐỐI KHÔNG thu phí</strong> hồ sơ hay tiền đồng phục.</p>
+          <p>• Không tin môi giới quán nước ven KCN hay các lời mời làm online chốt đơn nộp tiền cọc bạn nhé!</p>
+        </div>
+      </div>
+    `;
+
+    return { partA, partAClass: '', partBHtml, partBClass: '' };
+  },
+
+  // =========================================================================
   // BỘ LỌC Ý ĐỊNH THÔNG MINH (INTENT RECOGNITION VỚI CÁC KỊCH BẢN CHUẨN MỰC & BẢO VỆ KÉP)
   // =========================================================================
   analyzeAndRespond(userMessage) {
@@ -3852,6 +4196,77 @@ const App = {
     // KỊCH BẢN 2: USER PHẢN HỒI KHI ĐANG Ở TRẠNG THÁI 'awaiting_card_lock'
     // =========================================================================
     if (currentState === 'awaiting_card_lock') {
+      // 1. Phản hồi Tình huống 1: Đã chuyển khoản tiền / mất tiền / gõ số 1
+      const isCase1 = /\b(1|th1|th 1|tình huống 1)\b/i.test(q) || /1️⃣/.test(q) || /^(1|1️⃣|\#1)$/i.test(q.trim()) ||
+        ['chuyển khoản', 'chuyen khoan', 'đã chuyển', 'da chuyen', 'mất tiền', 'mat tien', 'nạp tiền', 'nap tien', 'tiền cọc', 'tien coc', 'phí làm thẻ', 'phi lam the', 'nhiệm vụ', 'nhiem vu', 'momo', 'bị trừ tiền'].some(w => q.includes(w));
+
+      // 2. Phản hồi Tình huống 2: Chỉ gửi ảnh CCCD / bấm link lạ / chưa mất tiền / gõ số 2
+      const isCase2 = /\b(2|th2|th 2|tình huống 2)\b/i.test(q) || /2️⃣/.test(q) || /^(2|2️⃣|\#2)$/i.test(q.trim()) ||
+        ['chỉ gửi cccd', 'gửi cccd', 'gui cccd', 'ảnh cccd', 'anh cccd', 'link lạ', 'link la', 'bấm link', 'bam link', 'thông tin cá nhân', 'thong tin ca nhan', 'chưa mất tiền', 'chua mat tien', 'chỉ gửi ảnh', 'chi gui anh'].some(w => q.includes(w));
+
+      // 3. Phản hồi Tình huống 3: Kẻ gian đe dọa / ép nộp thêm gỡ lệnh / gõ số 3
+      const isCase3 = /\b(3|th3|th 3|tình huống 3)\b/i.test(q) || /3️⃣/.test(q) || /^(3|3️⃣|\#3)$/i.test(q.trim()) ||
+        ['đe dọa', 'de doa', 'dọa kiện', 'doa kien', 'gỡ lệnh', 'go lenh', 'hoàn tiền', 'hoan tien', 'phong tỏa', 'phong toa', 'đòi tiền', 'doi tien', 'ép nộp'].some(w => q.includes(w));
+
+      if (isCase1) {
+        this.setChatState('idle');
+        partA = 'HƯỚNG DẪN KHẨN CẤP: BẠN ĐÃ LỠ CHUYỂN TIỀN CHO KẺ GIAN';
+        partBHtml = `
+          <div class="space-y-2.5">
+            <p class="font-bold text-red-400 flex items-center gap-1.5 text-xs">
+              <i data-lucide="alert-octagon" class="w-4 h-4 text-red-400 flex-shrink-0 animate-pulse"></i>
+              <span>CÁC BƯỚC XỬ LÝ KHẨN CẤP KHI ĐÃ CHUYỂN TIỀN:</span>
+            </p>
+            <div class="p-2.5 rounded-xl bg-slate-950/80 border border-red-500/30 text-xs text-slate-200 space-y-2 leading-relaxed">
+              <p><strong>1. Khóa thẻ / Tài khoản ngay:</strong> Mở ngay app ngân hàng hoặc ví điện tử bấm khóa thẻ và tính năng thanh toán trực tuyến, hoặc lật mặt sau thẻ gọi hotline tổng đài 24/7 yêu cầu khóa khẩn cấp để ngăn kẻ gian tiếp tục rút tiền.</p>
+              <p><strong>2. Thu thập & bảo quản chứng cứ:</strong> Chụp lại toàn bộ sao kê giao dịch (có mã FT/mã tham chiếu, STK và tên người nhận), biên lai chuyển tiền và toàn bộ nội dung tin nhắn chat với kẻ gian. Đến ngân hàng in sao kê có mộc đỏ.</p>
+              <p><strong>3. Trình báo cơ quan Công an:</strong> Mang hồ sơ chứng cứ đến <strong>Công an phường/xã gần nhất</strong> để nộp đơn tố giác tội phạm lừa đảo chiếm đoạt tài sản, hoặc liên hệ ngay hotline <strong>Công an TP. Đồng Nai: 0251.3685134</strong> để được tiếp nhận và hướng dẫn xử lý.</p>
+              <p><strong>4. CẢNH BÁO BẪY LỪA ĐẢO LẦN 2:</strong> Tuyệt đối <strong>KHÔNG tin</strong> vào các trang mạng tự xưng 'Luật sư', 'Hacker', 'Thu hồi nợ treo' nhận lấy lại tiền. Đó 100% là bẫy lừa đảo lần 2!</p>
+            </div>
+          </div>
+        `;
+        return { partA, partBHtml };
+      }
+
+      if (isCase2) {
+        this.setChatState('idle');
+        partA = 'HƯỚNG DẪN BẢO VỆ: LỘ CCCD HOẶC BẤM ĐƯỜNG LINK LẠ';
+        partBHtml = `
+          <div class="space-y-2.5">
+            <p class="font-bold text-amber-300 flex items-center gap-1.5 text-xs">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-300 flex-shrink-0"></i>
+              <span>BIỆN PHÁP BẢO VỆ KHI BỊ LỘ THÔNG TIN / BẤM LINK LẠ:</span>
+            </p>
+            <div class="p-2.5 rounded-xl bg-slate-950/80 border border-amber-500/30 text-xs text-slate-200 space-y-2 leading-relaxed">
+              <p><strong>1. Thu hồi quyền truy cập / Diệt mã độc:</strong> Nếu đã lỡ bấm link lạ hoặc cài file APK (Dịch vụ công/Thuế giả mạo), hãy lập tức bật Chế độ máy bay (ngắt mạng Wi-Fi/4G), gỡ bỏ app lạ hoặc khôi phục cài đặt gốc điện thoại. Sử dụng thiết bị khác an toàn để đổi mật khẩu app ngân hàng và mã PIN ngay.</p>
+              <p><strong>2. Cảnh báo mạo danh danh tính:</strong> Đăng thông báo công khai lên Facebook/Zalo cá nhân thông báo ảnh CCCD của bạn bị lộ từ ngày... để người thân, bạn bè phòng tránh trường hợp kẻ gian dùng danh tính của bạn mượn tiền hoặc lừa đảo.</p>
+              <p><strong>3. Xin giấy xác nhận tại Công an phường/xã:</strong> Trực tiếp đến Công an phường/xã nơi cư trú trình báo và xin cấp văn bản xác nhận việc bị lộ thông tin cá nhân. Đây là bằng chứng ngoại phạm pháp lý bảo vệ bạn nếu kẻ gian dùng CCCD để mở tài khoản rửa tiền hoặc vay tín dụng đen. Hotline Công an TP. Đồng Nai: <strong>0251.3685134</strong>.</p>
+            </div>
+          </div>
+        `;
+        return { partA, partBHtml };
+      }
+
+      if (isCase3) {
+        this.setChatState('idle');
+        partA = 'BÌNH TĨNH: KẺ GIAN HOÀN TOÀN KHÔNG DÁM BÁO CÔNG AN HAY KIỆN BẠN';
+        partBHtml = `
+          <div class="space-y-2.5">
+            <p class="font-bold text-cyan-300 flex items-center gap-1.5 text-xs">
+              <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
+              <span>BẢN CHẤT VÀ CÁCH ĐỐI PHÓ VỚI LỜI ĐE DỌA CỦA KẺ GIAN:</span>
+            </p>
+            <div class="p-2.5 rounded-xl bg-slate-950/80 border border-cyan-500/30 text-xs text-slate-200 space-y-2 leading-relaxed">
+              <p><strong>1. Kẻ gian KHÔNG BAO GIỜ dám đi kiện:</strong> Bạn hãy yên tâm tuyệt đối: Kẻ lừa đảo đang thực hiện hành vi phạm tội hình sự, chúng <strong>hoàn toàn không dám báo công an hay khởi kiện bạn ra tòa</strong>. Lời dọa 'phong tỏa tài sản', 'gửi giấy triệu tập' chỉ là đòn tâm lý hù dọa ép bạn chuyển thêm tiền!</p>
+              <p><strong>2. TUYỆT ĐỐI KHÔNG nộp thêm tiền:</strong> Mọi yêu cầu 'nộp tiền cứu lệnh', 'phí sửa lỗi cú pháp', 'tiền mở khóa hoàn tiền' đều là bẫy. Nộp thêm là mất thêm!</p>
+              <p><strong>3. Chặn liên lạc & Lưu giữ bằng chứng:</strong> Chụp màn hình toàn bộ tin nhắn đe dọa, số tài khoản ngân hàng và thông tin kẻ gian làm tư liệu, sau đó lập tức CHẶN NGAY toàn bộ số điện thoại, Zalo, Telegram của chúng.</p>
+              <p><strong>4. Hỗ trợ pháp lý chính thức:</strong> Nếu tiếp tục bị quấy rối, bạn hãy gọi trực tiếp đến đường dây nóng <strong>Công an TP. Đồng Nai: 0251.3685134</strong> để được can thiệp và xử lý theo pháp luật.</p>
+            </div>
+          </div>
+        `;
+        return { partA, partBHtml };
+      }
+
       const positiveWords = ['rồi', 'xong', 'ok', 'khoá rồi', 'khóa rồi', 'đã khóa', 'đã khoá', 'đang mở', 'đã làm', 'xong rồi', 'roi', 'khoa roi', 'da khoa', 'da lam'];
       const negativeWords = ['chưa', 'chua', 'không biết', 'khong biet', 'chưa biết', 'app lỗi', 'lỗi', 'không được', 'khong duoc', 'sao khóa', 'sao khoá', 'làm sao', 'lam sao', 'giúp', 'chưa khóa'];
 
@@ -3937,7 +4352,7 @@ const App = {
     // =========================================================================
     // KỊCH BẢN 1: MẤT TIỀN / LỪA TIỀN (Keywords: mất tiền, lừa, chuyển, nộp, cọc)
     // =========================================================================
-    const moneyLossWords = ['mất tiền', 'mat tien', 'lừa', 'lua', 'chuyển', 'chuyen', 'nộp', 'nop', 'cọc', 'coc'];
+    const moneyLossWords = ['mất tiền', 'mat tien', 'lừa', 'lua', 'vừa bị lừa', 'vua bi lua', 'bị lừa', 'chuyển', 'chuyen', 'nộp', 'nop', 'cọc', 'coc'];
     if (hasWord(moneyLossWords)) {
       this.setChatState('awaiting_card_lock');
 
@@ -3949,7 +4364,7 @@ const App = {
 
       partA = 'Bình tĩnh bạn nhé, hít thở sâu nào!';
       partBHtml = `
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           <p class="font-semibold text-slate-100 leading-relaxed text-xs">
             ${selectedPrompt}
           </p>
@@ -3959,6 +4374,20 @@ const App = {
           <p class="text-amber-300 text-[11px] font-semibold">
             👉 Bạn hãy vào app ngân hàng bấm Khóa thẻ ngay, hoặc lật mặt sau thẻ gọi hotline tổng đài ngân hàng để yêu cầu khóa 2 chiều ngay lập tức!
           </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 text-xs text-slate-200 space-y-2 leading-relaxed mt-2.5 shadow-sm">
+            <p class="font-bold text-cyan-300 flex items-center gap-1.5">
+              <i data-lucide="help-circle" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
+              <span>Để Jobi hướng dẫn bạn bước xử lý chính xác nhất ngay lúc này, bạn hãy cho Jobi biết cụ thể bạn vừa gặp tình huống nào dưới đây nhé:</span>
+            </p>
+            <div class="space-y-1.5 pl-1 text-[11px] text-slate-300">
+              <p><strong>1️⃣ Tình huống 1:</strong> Bạn đã lỡ chuyển khoản tiền (tiền cọc đồng phục, phí làm thẻ, hoặc nạp tiền làm nhiệm vụ)? <em>(Nếu có, khoảng bao nhiêu tiền và qua ngân hàng/ví nào?)</em></p>
+              <p><strong>2️⃣ Tình huống 2:</strong> Bạn mới chỉ gửi ảnh chụp CCCD, thông tin cá nhân hoặc bấm vào đường link lạ <em>(chưa mất tiền)</em>?</p>
+              <p><strong>3️⃣ Tình huống 3:</strong> Kẻ gian đang nhắn tin đe dọa hoặc yêu cầu bạn nộp thêm tiền để <em>'gỡ lệnh/hoàn tiền'</em>?</p>
+            </div>
+            <p class="text-amber-300 font-semibold text-[11px] pt-1 border-t border-slate-800">
+              👉 Hãy nhắn rõ tình trạng của bạn (hoặc gõ số 1, 2, 3) để Jobi chỉ cách giải quyết ngay lập tức!
+            </p>
+          </div>
         </div>
       `;
       return { partA, partBHtml };
@@ -4007,6 +4436,115 @@ const App = {
         </div>
       `;
       return { partA, partBHtml };
+    }
+
+    // =========================================================================
+    // KỊCH BẢN BỔ SUNG 1: TƯ VẤN CÔNG VIỆC & CÔNG TY PHÙ HỢP (HƯỚNG NGHIỆP ĐỘNG)
+    // Phân tích linh hoạt theo đúng thông tin thực tế người dùng nhập (chiều cao, sở thích, kỹ năng, ngành học...)
+    // =========================================================================
+    const careerWords = [
+      'thích hợp làm nghề gì', 'thich hop lam nghe gi',
+      'hợp làm nghề gì', 'hop lam nghe gi',
+      'làm nghề gì', 'lam nghe gi',
+      'nghề gì và cty nào', 'nghe gi va cty nao',
+      'nghề gì và công ty nào', 'nghe gi va cong ty nao',
+      'cty nào', 'công ty nào', 'cong ty nao',
+      'làm ở cty nào', 'lam o cty nao',
+      'làm ở công ty nào', 'lam o cong ty nao',
+      'hợp nghề gì', 'hop nghe gi',
+      'thích hợp nghề gì', 'thich hop nghe gi',
+      'thích hợp làm gì', 'thich hop lam gi',
+      'làm công việc gì', 'lam cong viec gi',
+      'tư vấn nghề', 'tu van nghe',
+      'tư vấn công việc', 'tu van cong viec',
+      'tư vấn việc làm', 'tu van viec lam',
+      'tư vấn hướng nghiệp', 'tu van huong nghiep',
+      'hướng nghiệp', 'huong nghiep',
+      'tìm việc phù hợp', 'tim viec phu hop',
+      'việc làm phù hợp', 'viec lam phu hop',
+      'việc gì phù hợp', 'viec gi phu hop',
+      'nên làm ở đâu', 'nen lam o dau',
+      'nên xin việc ở đâu', 'nen xin viec o dau',
+      'nên làm công ty nào', 'nen lam cong ty nao',
+      'xin vào công ty nào', 'xin vao cong ty nao',
+      'làm bên điện tử', 'lam ben dien tu',
+      'học điện tử', 'hoc dien tu',
+      'ngành điện tử', 'nganh dien tu',
+      'xin việc', 'xin viec', 'tìm việc', 'tim viec'
+    ];
+
+    const profileKeywords = [
+      '1m7', '1m70', '1m75', '1m6', '1m68', '1m65', '1m62', '1m58', '1m55', '1m8', 'cao 1m', 'chiều cao', 'chieu cao',
+      'đá bóng', 'da bong', 'đá banh', 'da banh', 'thể thao', 'the thao',
+      'sở thích', 'so thich', 'thể lực', 'the luc', 'điện tử', 'dien tu',
+      'cơ khí', 'co khi', 'kỹ thuật', 'ky thuat', 'kế toán', 'ke toan', 'tiếng trung', 'tieng trung',
+      'tiếng anh', 'tieng anh', 'lái xe', 'lai xe', 'bằng b2', 'may mặc', 'may mac', 'giày da'
+    ];
+
+    const isCareerQuery = hasWord(careerWords) || (hasWord(profileKeywords) && (
+      q.includes('nghề') || q.includes('việc') || q.includes('cty') || 
+      q.includes('công ty') || q.includes('hợp') || q.includes('làm') || 
+      q.includes('tư vấn') || q.includes('hướng nghiệp') || q.includes('xin') ||
+      q.includes('thích hợp') || q.includes('ở đâu') || q.includes('học') ||
+      q.includes('tốt nghiệp') || q.includes('kinh nghiệm') || q.includes('bằng')
+    ));
+
+    if (isCareerQuery) {
+      this.setChatState('idle');
+      return this.generateDynamicCareerAdvice(userMessage);
+    }
+
+    // =========================================================================
+    // KỊCH BẢN BỔ SUNG 2: HỎI NGOÀI LỀ / GIAO TIẾP PHIẾM (OFF-TOPIC)
+    // Keywords: "ăn sáng chưa", "ăn cơm chưa", "khỏe không", "thời tiết", "buồn quá", "chơi game"...
+    // =========================================================================
+    const offTopicWords = [
+      'ăn sáng chưa', 'an sang chua',
+      'ăn cơm chưa', 'an com chua',
+      'ăn trưa chưa', 'an trua chua',
+      'ăn tối chưa', 'an toi chua',
+      'ăn chưa', 'an chua',
+      'ăn gì chưa', 'an gi chua',
+      'khỏe không', 'khoe khong',
+      'khỏe ko', 'khoe ko',
+      'có khỏe không', 'co khoe khong',
+      'bạn khỏe không', 'ban khoe khong',
+      'dạo này thế nào', 'dao nay the nao',
+      'thời tiết', 'thoi tiet',
+      'buồn quá', 'buon qua',
+      'chán quá', 'chan qua',
+      'buồn ghê', 'buon ghe',
+      'chán ghê', 'chan ghe',
+      'chơi game', 'choi game',
+      'chơi liên quân', 'choi lien quan',
+      'đánh game', 'danh game',
+      'hát đi', 'hat di',
+      'kể chuyện', 'ke chuyen',
+      'kể chuyện cười', 'ke chuyen cuoi',
+      'ngủ chưa', 'ngu chua',
+      'đi ngủ', 'di ngu',
+      'người yêu', 'nguoi yeu',
+      'yêu không', 'yeu khong',
+      'thất tình', 'that tinh'
+    ];
+
+    if (hasWord(offTopicWords)) {
+      this.setChatState('idle');
+      partA = "Xin lỗi, Jobi chỉ hỗ trợ tuyển dụng công việc và phòng chống lừa đảo...";
+      partBHtml = `
+        <div class="space-y-2">
+          <p class="text-slate-200 text-xs leading-relaxed">
+            Xin lỗi, Jobi chỉ hỗ trợ tuyển dụng công việc và phòng chống lừa đảo... Bạn muốn kiểm tra căn cước, kiểm tra tin tuyển dụng hay tra cứu công ty nào ạ?
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-cyan-500/30 text-xs text-slate-300 space-y-1 mt-2">
+            <p class="font-medium text-cyan-300">💡 Bạn có thể nhờ Jobi trợ giúp:</p>
+            <p>• <strong>Kiểm tra tin tuyển dụng:</strong> Dán tin nhắn tuyển dụng nghi vấn để bóc mẽ bẫy lừa đảo.</p>
+            <p>• <strong>Bảo vệ CCCD / Thẻ ngân hàng:</strong> Hướng dẫn xử lý khẩn cấp khi lỡ chuyển tiền cọc hoặc lộ thông tin cá nhân.</p>
+            <p>• <strong>Tư vấn việc làm & công ty uy tín:</strong> Gợi ý vị trí việc làm và doanh nghiệp điện tử, cơ khí chuẩn mực tại các KCN Đồng Nai.</p>
+          </div>
+        </div>
+      `;
+      return { partA, partAClass, partBHtml, partBClass };
     }
 
     // =========================================================================
